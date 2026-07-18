@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tribunus MVP — Feature Blocks</title>
+<style>
+  :root{
+    --bg:#0e1117;
+    --panel:#161b25;
+    --ink:#e8edf5;
+    --muted:#98a4b8;
+    --line:#242c3a;
+    --p1:#ff5c5c;
+    --p2:#ffb020;
+    --p3:#4aa8ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+    line-height:1.5;
+    padding:48px 32px 80px;
+  }
+  .wrap{max-width:1240px;margin:0 auto}
+
+  header{margin-bottom:40px;border-bottom:1px solid var(--line);padding-bottom:28px}
+  h1{font-size:34px;letter-spacing:-.02em;font-weight:700}
+  .sub{color:var(--muted);margin-top:8px;font-size:15px}
+
+  .legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:22px}
+  .key{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+  .dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+  .filters button{
+    background:var(--panel);color:var(--muted);border:1px solid var(--line);
+    padding:7px 15px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;
+    transition:.15s;
+  }
+  .filters button:hover{color:var(--ink);border-color:#3a4557}
+  .filters button.on{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
+
+  section{margin-top:44px}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:18px}
+  .sec-num{
+    font-size:12px;font-weight:700;color:var(--muted);
+    border:1px solid var(--line);border-radius:6px;padding:3px 8px;
+  }
+  h2{font-size:19px;font-weight:650;letter-spacing:-.01em}
+  .sec-note{color:var(--muted);font-size:13.5px;margin:-8px 0 18px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:18px}
+
+  /* lego block */
+  .block{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:26px 20px 20px;
+    margin-top:11px;
+    transition:transform .15s, box-shadow .15s;
+  }
+  .block::before{ /* the studs */
+    content:"";
+    position:absolute;top:-11px;left:20px;
+    width:78px;height:22px;
+    background-image:radial-gradient(circle at 11px 11px, var(--stud) 0 8px, transparent 8px);
+    background-size:26px 22px;
+    background-repeat:repeat-x;
+  }
+  .block:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(0,0,0,.45)}
+  .block .name{font-size:15px;font-weight:650;letter-spacing:-.01em;padding-right:34px}
+  .block .desc{color:var(--muted);font-size:13.5px;margin-top:8px}
+  .tag{
+    position:absolute;top:16px;right:16px;
+    font-size:10.5px;font-weight:700;letter-spacing:.05em;
+    padding:3px 7px;border-radius:5px;color:#0e1117;
+  }
+  .p1{--stud:var(--p1)} .p1 .tag{background:var(--p1)}
+  .p2{--stud:var(--p2)} .p2 .tag{background:var(--p2)}
+  .p3{--stud:var(--p3)} .p3 .tag{background:var(--p3)}
+  .hide{display:none}
+
+  .notes{margin-top:56px;border-top:1px solid var(--line);padding-top:32px}
+  .notes h2{margin-bottom:14px}
+  .notes .grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+  .note{background:var(--panel);border:1px solid var(--line);border-left:3px solid #3a4557;
+        border-radius:8px;padding:16px 18px}
+  .note h3{font-size:14px;font-weight:650;margin-bottom:6px}
+  .note p{font-size:13.5px;color:var(--muted)}
+  .note.def{border-left-color:#6b7280}
+  .note.open{border-left-color:#8b5cf6}
+  footer{margin-top:48px;color:var(--muted);font-size:12.5px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Tribunus MVP — Feature Blocks</h1>
+  <p class="sub">Version 1.0 · July 2026 · Working draft for team review</p>
+  <div class="legend">
+    <span class="key"><i class="dot" style="background:var(--p1)"></i> P1 — core to first paid pilot</span>
+    <span class="key"><i class="dot" style="background:var(--p2)"></i> P2 — fast follow</span>
+    <span class="key"><i class="dot" style="background:var(--p3)"></i> P3 — later phase</span>
+  </div>
+  <div class="filters">
+    <button class="on" data-f="all">All</button>
+    <button data-f="p1">P1 only</button>
+    <button data-f="p2">P2 only</button>
+    <button data-f="p3">P3 only</button>
+  </div>
+</header>
+
+<section>
+  <div class="sec-head"><span class="sec-num">01</span><h2>Platform and foundation</h2></div>
+  <div class="grid">
+    <div class="block p1"><span class="tag">P1</span><div class="name">Company, users &amp; permissions</div><p class="desc">Org accounts, role-based access, and project teams — developers, analysts, and consultants each see their own slice.</p></div>
+    <div class="block p1"><span class="tag">P1</span><div class="name">Project workspace</div><p class="desc">Create a project by address or drawn parcel. Stage, asset type, assumptions, and status all live in one place.</p></div>
+    <div class="block p1"><span class="tag">P1</span><div class="name">File intake &amp; versioning</div><p class="desc">Upload PDFs, spreadsheets, correspondence, and drawings with preserved versions and full audit history.</p></div>
+    <div class="block p1"><span class="tag">P1</span><div class="name">Security &amp; admin controls</div><p class="desc">Encryption, logging, retention policy, source management, user support, and pilot analytics.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">02</span><h2>Municipal data core</h2></div>
+  <p class="sec-note">The always-current layer the developer cared about most.</p>
+  <div class="grid">
+    <div class="block p1"><span class="tag">P1</span><div class="name">Vancouver source registry</div><p class="desc">Authoritative zoning, plans, policies, fees, GIS, application, council, and permit sources. The trust backbone.</p></div>
+    <div class="block p1"><span class="tag">P1</span><div class="name">Time-versioned rules &amp; fees</div><p class="desc">Current and historical requirements with effective dates and source links. The always-updated DCC, DCL, and CAC feed.</p></div>
+    <div class="block p1"><span class="tag">P1</span><div class="name">Deterministic calculators</div><p class="desc">FSR, density, unit counts, dedications, and fees from approved formulas — never free-form model math.</p></div>
+    <div class="block p2"><span class="tag">P2</span><div class="name">Zoning map aggregation</div><p class="desc">Every municipality a user works in, in one place, instead of ten city maps open across one screen.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">03</span><h2>Project setup and verification</h2></div>
+  <div class="grid">
+    <div class="block p1"><span class="tag">P1</span><div class="name">Project profile extraction</div><p class="desc">Pull height, density, units, tenure, parking, setbacks, floor area, uses, and departures — then confirm key facts with the user.</p></div>
+    <div class="block p1"><span class="tag">P1</span><div class="name">Verified Project Baseline</div><p class="desc">One view of current zoning, plans, policies, fees, approval path, site constraints, and effective dates.</p></div>
+    <div class="block p1"><span class="tag">P1</span><div class="name">Assumption Ledger</div><p class="desc">Every material assumption: source, last checked, confidence, and what it costs if it turns out wrong.</p></div>
+    <div class="block p1"><span class="tag">P1</span><div class="name">Verification &amp; citations</div><p class="desc">Original-source citations, confidence labels, contradictory-evidence checks, and a human-review queue. Fact over summary.</p></div>
+    <div class="block p3"><span class="tag">P3</span><div class="name">Client standards absorption</div><p class="desc">Pre-load a firm's own historical numbers and standards so their data is ready to drop in without repeat conversations.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">04</span><h2>Analysis features</h2></div>
+  <div class="grid">
+    <div class="block p1"><span class="tag">P1</span><div class="name">Feature-run engine</div><p class="desc">One-click analyses — Baseline Review, Fee Verification, Precedent Review, Amendment Risk, Application Readiness — each a saved, verified job.</p></div>
+    <div class="block p1"><span class="tag">P1</span><div class="name">Automatic Assumption Audit</div><p class="desc">Fires on project creation: baseline, risks, precedents, actions. Value arrives before the user learns any features.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">05</span><h2>Precedent and council intelligence</h2></div>
+  <div class="grid">
+    <div class="block p1"><span class="tag">P1</span><div class="name">Precedent search &amp; decision trace</div><p class="desc">Comparable applications reconstructed end to end: original proposal, staff concerns, revisions, council discussion, conditions, outcome.</p></div>
+    <div class="block p2"><span class="tag">P2</span><div class="name">Gray-area departure precedent</div><p class="desc">Where a council or member has actually allowed a departure — a 2.5m setback where 3m is required — within the NCP or a 500m radius.</p></div>
+    <div class="block p2"><span class="tag">P2</span><div class="name">Live council summarization</div><p class="desc">The gist of a specific council item, and what council actually debated versus what the written OCP or NCP says. No 3-hour meetings.</p></div>
+    <div class="block p2"><span class="tag">P2</span><div class="name">Council voting profile</div><p class="desc">Per-member read of how each has voted on comparable projects and the themes they back or resist, each point cited to a meeting.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">06</span><h2>Consultant coordination</h2></div>
+  <p class="sec-note">The real pain once research is handled. Scoping is an open team question.</p>
+  <div class="grid">
+    <div class="block p2"><span class="tag">P2/P3</span><div class="name">Requirement &amp; dependency checklist</div><p class="desc">Per-discipline and utility checks confirming each package was reviewed and is "in." Mispiped drawings once cost $100k.</p></div>
+    <div class="block p2"><span class="tag">P2/P3</span><div class="name">Approval sequence map</div><p class="desc">The required order of approvals — city, then BC Hydro, then utilities — and who governs each decision, with the lag each adds.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">07</span><h2>Monitoring and retention</h2></div>
+  <p class="sec-note">What keeps veteran users engaged across multi-year project cycles.</p>
+  <div class="grid">
+    <div class="block p1"><span class="tag">P1</span><div class="name">Project Watch</div><p class="desc">Project-specific alerts on policy, fee, infrastructure, and nearby-development changes — with stated impact, not generic news.</p></div>
+    <div class="block p1"><span class="tag">P1</span><div class="name">Change &amp; upgrade alerts</div><p class="desc">Any change from City Hall or senior government affecting the property: fees, tax, regulation. The single MVP pick.</p></div>
+    <div class="block p2"><span class="tag">P2</span><div class="name">Issue backlog log</div><p class="desc">A running log of past issues tied to the project so they resurface later instead of being forgotten.</p></div>
+    <div class="block p2"><span class="tag">P2</span><div class="name">Competition alerts</div><p class="desc">Flags similar product filed nearby, or 500 condo units two blocks away completing just after yours. Filterable by market.</p></div>
+    <div class="block p3"><span class="tag">P3</span><div class="name">Competitor extras analysis</div><p class="desc">What nearby competitors offer — second fridge, AC, wood floors, basement suite — so you know the minimum competitive standard.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">08</span><h2>Market and site intelligence</h2></div>
+  <div class="grid">
+    <div class="block p3"><span class="tag">P3</span><div class="name">Growth forecasting</div><p class="desc">GVRD growth strategy, municipal OCPs, and transit plans, so users get into an area before land prices climb.</p></div>
+    <div class="block p3"><span class="tag">P3</span><div class="name">Neighborhood context signals</div><p class="desc">Visual transit, bus, mall, and amenity context — the "no mall within a 15-minute drive" test that keeps users out of bad deals.</p></div>
+    <div class="block p3"><span class="tag">P3</span><div class="name">Sales comps &amp; feasibility check</div><p class="desc">Local land and product sales with dollar-per-square-foot and timeframe, plus cost per unit by product type. Does it pencil?</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">09</span><h2>Cost intelligence</h2></div>
+  <div class="grid">
+    <div class="block p3"><span class="tag">P3</span><div class="name">Construction cost benchmarking</div><p class="desc">Cost per square foot by building type across municipalities, plus component costs, as a check that tender numbers are in range.</p></div>
+    <div class="block p3"><span class="tag">P3</span><div class="name">Building permit fee estimation</div><p class="desc">Estimate permit fees from cost per square foot so the city's number goes into the pro forma without surprises.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">10</span><h2>Outputs and collaboration</h2></div>
+  <div class="grid">
+    <div class="block p1"><span class="tag">P1</span><div class="name">Risk &amp; Action Register</div><p class="desc">Findings become persistent issues with owners, due dates, status, and resolution evidence.</p></div>
+    <div class="block p1"><span class="tag">P1</span><div class="name">Exports &amp; reporting</div><p class="desc">Shareable decision brief, issue register, and source appendix for internal and consultant review.</p></div>
+    <div class="block p2"><span class="tag">P2</span><div class="name">Ask This Project</div><p class="desc">Source-cited chat over verified project context, analyses, and documents. Explicitly not a blank chatbot.</p></div>
+  </div>
+</section>
+
+<div class="notes">
+  <h2>Principles, deferrals, and open decisions</h2>
+  <div class="grid">
+    <div class="note"><h3>Simplicity and stability</h3><p>Dead simple for a non-technical user, and no gratuitous changes to settings or layouts. Stability over novelty.</p></div>
+    <div class="note"><h3>Sectioned, role-based views</h3><p>Clearly delineated sections — zoning, dollar per square foot, sales, finance — so each role focuses and skips the rest.</p></div>
+    <div class="note def"><h3>Deferred out of V1</h3><p>No permit submission, code certification, construction management, or universal approval-probability score. Crowded or liability-heavy.</p></div>
+    <div class="note def"><h3>Marketplace &amp; advertising</h3><p>Far future and permissioned only. Zero tolerance for unsolicited spam, so any such feature needs a hard off switch.</p></div>
+    <div class="note open"><h3>Open: consultant scope</h3><p>Coordination may be the primary time sink once research is solved. Core to the wedge, or fast follow?</p></div>
+    <div class="note open"><h3>Open: who the wedge is for</h3><p>Audit and baseline land newer firms; monitoring and cost intelligence retain veterans. Tag features by audience.</p></div>
+  </div>
+</div>
+
+<footer>Tribunus Labs · MVP feature list v1.0</footer>
+</div>
+
+<script>
+  const btns = document.querySelectorAll('.filters button');
+  btns.forEach(b => b.addEventListener('click', () => {
+    btns.forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    const f = b.dataset.f;
+    document.querySelectorAll('.block').forEach(el => {
+      el.classList.toggle('hide', f !== 'all' && !el.classList.contains(f));
+    });
+    document.querySelectorAll('section').forEach(s => {
+      const any = [...s.querySelectorAll('.block')].some(el => !el.classList.contains('hide'));
+      s.style.display = any ? '' : 'none';
+    });
+  }));
+</script>
+</body>
+</html>
