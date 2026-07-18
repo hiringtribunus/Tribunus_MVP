@@ -10,6 +10,7 @@
     --panel:#161b25;
     --ink:#e8edf5;
     --muted:#98a4b8;
+    --dim:#7d8798;
     --line:#242c3a;
     --p1:#ff5c5c;
     --p2:#ffb020;
@@ -23,11 +24,12 @@
     line-height:1.5;
     padding:48px 32px 80px;
   }
-  .wrap{max-width:1240px;margin:0 auto}
+  .wrap{max-width:1400px;margin:0 auto}
 
-  header{margin-bottom:40px;border-bottom:1px solid var(--line);padding-bottom:28px}
+  header{margin-bottom:34px;border-bottom:1px solid var(--line);padding-bottom:28px}
   h1{font-size:34px;letter-spacing:-.02em;font-weight:700}
   .sub{color:var(--muted);margin-top:8px;font-size:15px}
+  .sub b{color:var(--ink);font-weight:600}
 
   .legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:22px}
   .key{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
@@ -41,16 +43,13 @@
   .filters button:hover{color:var(--ink);border-color:#3a4557}
   .filters button.on{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
 
-  section{margin-top:44px}
-  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:18px}
-  .sec-num{
-    font-size:12px;font-weight:700;color:var(--muted);
-    border:1px solid var(--line);border-radius:6px;padding:3px 8px;
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(400px,1fr));
+    gap:22px;
+    margin-top:34px;
+    align-items:start;
   }
-  h2{font-size:19px;font-weight:650;letter-spacing:-.01em}
-  .sec-note{color:var(--muted);font-size:13.5px;margin:-8px 0 18px}
-
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:18px}
 
   /* lego block */
   .block{
@@ -58,7 +57,7 @@
     background:var(--panel);
     border:1px solid var(--line);
     border-radius:12px;
-    padding:26px 20px 20px;
+    padding:30px 22px 22px;
     margin-top:11px;
     transition:transform .15s, box-shadow .15s;
   }
@@ -71,10 +70,31 @@
     background-repeat:repeat-x;
   }
   .block:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(0,0,0,.45)}
-  .block .name{font-size:15px;font-weight:650;letter-spacing:-.01em;padding-right:34px}
-  .block .desc{color:var(--muted);font-size:13.5px;margin-top:8px}
+  .num{
+    display:block;
+    font-size:12px;font-weight:800;letter-spacing:.06em;
+    color:var(--stud);
+    margin-bottom:7px;
+  }
+  .block .name{font-size:16.5px;font-weight:650;letter-spacing:-.01em;padding-right:44px}
+  .detail{color:var(--muted);font-size:13.5px;margin-top:11px}
+  .desc{
+    color:var(--dim);
+    font-size:13px;
+    margin-top:14px;
+    padding-top:12px;
+    border-top:1px dashed var(--line);
+  }
+  .desc::before{
+    content:"IN SHORT";
+    display:block;
+    font-size:9.5px;font-weight:800;letter-spacing:.11em;
+    color:var(--stud);
+    opacity:.75;
+    margin-bottom:5px;
+  }
   .tag{
-    position:absolute;top:16px;right:16px;
+    position:absolute;top:20px;right:16px;
     font-size:10.5px;font-weight:700;letter-spacing:.05em;
     padding:3px 7px;border-radius:5px;color:#0e1117;
   }
@@ -83,11 +103,11 @@
   .p3{--stud:var(--p3)} .p3 .tag{background:var(--p3)}
   .hide{display:none}
 
-  .notes{margin-top:56px;border-top:1px solid var(--line);padding-top:32px}
-  .notes h2{margin-bottom:14px}
-  .notes .grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+  .notes{margin-top:60px;border-top:1px solid var(--line);padding-top:32px}
+  .notes h2{font-size:19px;font-weight:650;margin-bottom:16px;letter-spacing:-.01em}
+  .notes .grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));margin-top:0}
   .note{background:var(--panel);border:1px solid var(--line);border-left:3px solid #3a4557;
-        border-radius:8px;padding:16px 18px}
+        border-radius:8px;padding:16px 18px;margin-top:0}
   .note h3{font-size:14px;font-weight:650;margin-bottom:6px}
   .note p{font-size:13.5px;color:var(--muted)}
   .note.def{border-left-color:#6b7280}
@@ -100,125 +120,236 @@
 
 <header>
   <h1>Tribunus MVP — Feature Blocks</h1>
-  <p class="sub">Version 1.0 · July 2026 · Working draft for team review</p>
+  <p class="sub">34 independent features, ordered by what the MVP needs first. <b>#1 is the most important.</b></p>
   <div class="legend">
     <span class="key"><i class="dot" style="background:var(--p1)"></i> P1 — core to first paid pilot</span>
     <span class="key"><i class="dot" style="background:var(--p2)"></i> P2 — fast follow</span>
     <span class="key"><i class="dot" style="background:var(--p3)"></i> P3 — later phase</span>
   </div>
   <div class="filters">
-    <button class="on" data-f="all">All</button>
+    <button class="on" data-f="all">All 34</button>
     <button data-f="p1">P1 only</button>
     <button data-f="p2">P2 only</button>
     <button data-f="p3">P3 only</button>
   </div>
 </header>
 
-<section>
-  <div class="sec-head"><span class="sec-num">01</span><h2>Platform and foundation</h2></div>
-  <div class="grid">
-    <div class="block p1"><span class="tag">P1</span><div class="name">Company, users &amp; permissions</div><p class="desc">Org accounts, role-based access, and project teams — developers, analysts, and consultants each see their own slice.</p></div>
-    <div class="block p1"><span class="tag">P1</span><div class="name">Project workspace</div><p class="desc">Create a project by address or drawn parcel. Stage, asset type, assumptions, and status all live in one place.</p></div>
-    <div class="block p1"><span class="tag">P1</span><div class="name">File intake &amp; versioning</div><p class="desc">Upload PDFs, spreadsheets, correspondence, and drawings with preserved versions and full audit history.</p></div>
-    <div class="block p1"><span class="tag">P1</span><div class="name">Security &amp; admin controls</div><p class="desc">Encryption, logging, retention policy, source management, user support, and pilot analytics.</p></div>
-  </div>
-</section>
+<div class="grid" id="grid">
 
-<section>
-  <div class="sec-head"><span class="sec-num">02</span><h2>Municipal data core</h2></div>
-  <p class="sec-note">The always-current layer the developer cared about most.</p>
-  <div class="grid">
-    <div class="block p1"><span class="tag">P1</span><div class="name">Vancouver source registry</div><p class="desc">Authoritative zoning, plans, policies, fees, GIS, application, council, and permit sources. The trust backbone.</p></div>
-    <div class="block p1"><span class="tag">P1</span><div class="name">Time-versioned rules &amp; fees</div><p class="desc">Current and historical requirements with effective dates and source links. The always-updated DCC, DCL, and CAC feed.</p></div>
-    <div class="block p1"><span class="tag">P1</span><div class="name">Deterministic calculators</div><p class="desc">FSR, density, unit counts, dedications, and fees from approved formulas — never free-form model math.</p></div>
-    <div class="block p2"><span class="tag">P2</span><div class="name">Zoning map aggregation</div><p class="desc">Every municipality a user works in, in one place, instead of ten city maps open across one screen.</p></div>
+  <div class="block p1"><span class="tag">P1</span><span class="num">01</span>
+    <div class="name">Project workspace</div>
+    <p class="detail">A user starts a project by typing an address or drawing a parcel boundary on a map, and Tribunus creates a persistent container for that site. The workspace holds the project's stage, asset type, working assumptions, and current status, and it is the object every other feature reads from and writes back to. This is the project-first "Google folder" model the developer described: one place per site rather than files scattered across email, desktop folders, and consultant portals. Because projects run for years, the workspace has to survive team changes, scope changes, and long dormant periods without losing history. Everything downstream — baseline, audit, alerts, precedents — is scoped to a project rather than to a user or a search.</p>
+    <p class="desc">Create a project by address or drawn parcel. Stage, asset type, assumptions, and status all live in one place. Everything else hangs off this.</p>
   </div>
-</section>
 
-<section>
-  <div class="sec-head"><span class="sec-num">03</span><h2>Project setup and verification</h2></div>
-  <div class="grid">
-    <div class="block p1"><span class="tag">P1</span><div class="name">Project profile extraction</div><p class="desc">Pull height, density, units, tenure, parking, setbacks, floor area, uses, and departures — then confirm key facts with the user.</p></div>
-    <div class="block p1"><span class="tag">P1</span><div class="name">Verified Project Baseline</div><p class="desc">One view of current zoning, plans, policies, fees, approval path, site constraints, and effective dates.</p></div>
-    <div class="block p1"><span class="tag">P1</span><div class="name">Assumption Ledger</div><p class="desc">Every material assumption: source, last checked, confidence, and what it costs if it turns out wrong.</p></div>
-    <div class="block p1"><span class="tag">P1</span><div class="name">Verification &amp; citations</div><p class="desc">Original-source citations, confidence labels, contradictory-evidence checks, and a human-review queue. Fact over summary.</p></div>
-    <div class="block p3"><span class="tag">P3</span><div class="name">Client standards absorption</div><p class="desc">Pre-load a firm's own historical numbers and standards so their data is ready to drop in without repeat conversations.</p></div>
+  <div class="block p1"><span class="tag">P1</span><span class="num">02</span>
+    <div class="name">Vancouver municipal source registry</div>
+    <p class="detail">A maintained registry of the authoritative sources for a municipality: zoning bylaws, community and area plans, policy documents, fee schedules, GIS layers, application records, council agendas and minutes, and permit data. Each source is tracked with its location, publisher, update cadence, and last-fetched timestamp, so the system knows how fresh its own knowledge is. This registry is what separates Tribunus from a chatbot guessing at bylaws — every claim the product makes should trace back to a registered source. Starting with Vancouver keeps the scope tight while the ingestion and verification patterns are proven. Adding a municipality later becomes a data exercise rather than a rebuild, which is what makes geographic expansion viable.</p>
+    <p class="desc">Authoritative zoning, plans, policies, fees, GIS, application, council, and permit sources. Nothing downstream is trustworthy without it.</p>
   </div>
-</section>
 
-<section>
-  <div class="sec-head"><span class="sec-num">04</span><h2>Analysis features</h2></div>
-  <div class="grid">
-    <div class="block p1"><span class="tag">P1</span><div class="name">Feature-run engine</div><p class="desc">One-click analyses — Baseline Review, Fee Verification, Precedent Review, Amendment Risk, Application Readiness — each a saved, verified job.</p></div>
-    <div class="block p1"><span class="tag">P1</span><div class="name">Automatic Assumption Audit</div><p class="desc">Fires on project creation: baseline, risks, precedents, actions. Value arrives before the user learns any features.</p></div>
+  <div class="block p1"><span class="tag">P1</span><span class="num">03</span>
+    <div class="name">Time-versioned rules &amp; fees</div>
+    <p class="detail">Rules and fees are stored as dated records rather than a single current value, so the product can answer both "what applies today" and "what applied when we underwrote this." Each record carries an effective date, a source link, and the change that superseded it, which makes historical decisions auditable long after the fact. This directly answers the strongest and most repeated ask in the interviews: an always-updated DCC, DCL, and CAC feed that becomes the developer's quick source instead of hunting through Metro Vancouver fee tables. Knowing when a change takes effect matters as much as knowing the number, because a rate that rises next quarter changes whether you rush an application. Time-versioning is also what lets alerts say "this went up 8% effective March 1" rather than just showing a new figure.</p>
+    <p class="desc">Current and historical requirements with effective dates and source links. The always-updated DCC, DCL, and CAC feed — the most repeated ask.</p>
   </div>
-</section>
 
-<section>
-  <div class="sec-head"><span class="sec-num">05</span><h2>Precedent and council intelligence</h2></div>
-  <div class="grid">
-    <div class="block p1"><span class="tag">P1</span><div class="name">Precedent search &amp; decision trace</div><p class="desc">Comparable applications reconstructed end to end: original proposal, staff concerns, revisions, council discussion, conditions, outcome.</p></div>
-    <div class="block p2"><span class="tag">P2</span><div class="name">Gray-area departure precedent</div><p class="desc">Where a council or member has actually allowed a departure — a 2.5m setback where 3m is required — within the NCP or a 500m radius.</p></div>
-    <div class="block p2"><span class="tag">P2</span><div class="name">Live council summarization</div><p class="desc">The gist of a specific council item, and what council actually debated versus what the written OCP or NCP says. No 3-hour meetings.</p></div>
-    <div class="block p2"><span class="tag">P2</span><div class="name">Council voting profile</div><p class="desc">Per-member read of how each has voted on comparable projects and the themes they back or resist, each point cited to a meeting.</p></div>
+  <div class="block p1"><span class="tag">P1</span><span class="num">04</span>
+    <div class="name">Change &amp; upgrade alerts</div>
+    <p class="detail">Monitoring for any upgrade or change brought forward by City Hall departments or by higher levels of government that could touch the property. That includes fee changes, tax and political changes such as GST treatment or rebate programs, and regional, provincial, or federal regulation changes — the example given was a setback increased from a creek because of a protected species. The developer named this as the single MVP pick: the constant bombardment of information made simple and all in one place. The value is not the raw feed, which already exists in scattered form, but the filtering and the plain statement of what it means for this specific site. If a change does not affect the project, the user should never see it.</p>
+    <p class="desc">Any change from City Hall or senior government affecting the property: fees, tax, regulation. Named as the single MVP pick.</p>
   </div>
-</section>
 
-<section>
-  <div class="sec-head"><span class="sec-num">06</span><h2>Consultant coordination</h2></div>
-  <p class="sec-note">The real pain once research is handled. Scoping is an open team question.</p>
-  <div class="grid">
-    <div class="block p2"><span class="tag">P2/P3</span><div class="name">Requirement &amp; dependency checklist</div><p class="desc">Per-discipline and utility checks confirming each package was reviewed and is "in." Mispiped drawings once cost $100k.</p></div>
-    <div class="block p2"><span class="tag">P2/P3</span><div class="name">Approval sequence map</div><p class="desc">The required order of approvals — city, then BC Hydro, then utilities — and who governs each decision, with the lag each adds.</p></div>
+  <div class="block p1"><span class="tag">P1</span><span class="num">05</span>
+    <div class="name">Project Watch</div>
+    <p class="detail">Standing, project-scoped monitoring across policy, fee, infrastructure, and nearby-development changes, tuned to the specific parcel and its assumptions. Where feature 04 covers the incoming regulatory firehose, Project Watch is the per-project subscription that decides which items are relevant and states the impact rather than restating the news. Alerts are tied back to entries in the Assumption Ledger, so a change can flag exactly which assumption it invalidates and what that exposes financially. This is the watchdog and weekly-news idea, and it is the main reason a user opens the product between active work periods. Retention on multi-year project cycles depends on this block more than on any analysis feature.</p>
+    <p class="desc">Project-specific alerts on policy, fee, infrastructure, and nearby-development changes — with stated impact, not generic news.</p>
   </div>
-</section>
 
-<section>
-  <div class="sec-head"><span class="sec-num">07</span><h2>Monitoring and retention</h2></div>
-  <p class="sec-note">What keeps veteran users engaged across multi-year project cycles.</p>
-  <div class="grid">
-    <div class="block p1"><span class="tag">P1</span><div class="name">Project Watch</div><p class="desc">Project-specific alerts on policy, fee, infrastructure, and nearby-development changes — with stated impact, not generic news.</p></div>
-    <div class="block p1"><span class="tag">P1</span><div class="name">Change &amp; upgrade alerts</div><p class="desc">Any change from City Hall or senior government affecting the property: fees, tax, regulation. The single MVP pick.</p></div>
-    <div class="block p2"><span class="tag">P2</span><div class="name">Issue backlog log</div><p class="desc">A running log of past issues tied to the project so they resurface later instead of being forgotten.</p></div>
-    <div class="block p2"><span class="tag">P2</span><div class="name">Competition alerts</div><p class="desc">Flags similar product filed nearby, or 500 condo units two blocks away completing just after yours. Filterable by market.</p></div>
-    <div class="block p3"><span class="tag">P3</span><div class="name">Competitor extras analysis</div><p class="desc">What nearby competitors offer — second fridge, AC, wood floors, basement suite — so you know the minimum competitive standard.</p></div>
+  <div class="block p1"><span class="tag">P1</span><span class="num">06</span>
+    <div class="name">Verified Project Baseline</div>
+    <p class="detail">A single consolidated view of everything currently true about a site: applicable zoning, community and area plans, relevant policies, fees, the likely approval path, site constraints, and the effective dates attached to each. It is assembled from the source registry and the time-versioned rules, then presented as one page a user can read in a few minutes instead of assembling over a few days. Every line carries its citation, so a skeptical user or a consultant can verify without asking anyone. The baseline is the reference point that later changes are measured against — without it, an alert has nothing to compare to. It is also the artifact most likely to be forwarded to a partner or lender, which makes its presentation quality a real requirement.</p>
+    <p class="desc">One view of current zoning, plans, policies, fees, approval path, site constraints, and effective dates for the site.</p>
   </div>
-</section>
 
-<section>
-  <div class="sec-head"><span class="sec-num">08</span><h2>Market and site intelligence</h2></div>
-  <div class="grid">
-    <div class="block p3"><span class="tag">P3</span><div class="name">Growth forecasting</div><p class="desc">GVRD growth strategy, municipal OCPs, and transit plans, so users get into an area before land prices climb.</p></div>
-    <div class="block p3"><span class="tag">P3</span><div class="name">Neighborhood context signals</div><p class="desc">Visual transit, bus, mall, and amenity context — the "no mall within a 15-minute drive" test that keeps users out of bad deals.</p></div>
-    <div class="block p3"><span class="tag">P3</span><div class="name">Sales comps &amp; feasibility check</div><p class="desc">Local land and product sales with dollar-per-square-foot and timeframe, plus cost per unit by product type. Does it pencil?</p></div>
+  <div class="block p1"><span class="tag">P1</span><span class="num">07</span>
+    <div class="name">Automatic Assumption Audit</div>
+    <p class="detail">The first analysis runs automatically the moment a project is created, without the user selecting anything or learning the interface. It returns the baseline, the material risks it found, comparable precedents, and a short list of recommended actions. The point is that value arrives before onboarding — a veteran developer who will not invest time learning a clunky tool gets a useful output from the first screen. This doubles as the product's demo: what a prospect sees in the first two minutes is a real audit of their own site, not a generic tour. It also formalizes the habit the developer already has of double-checking that nothing has changed, which is the behaviour the whole product is built around.</p>
+    <p class="desc">Fires on project creation: baseline, risks, precedents, actions. Value arrives before the user learns any features.</p>
   </div>
-</section>
 
-<section>
-  <div class="sec-head"><span class="sec-num">09</span><h2>Cost intelligence</h2></div>
-  <div class="grid">
-    <div class="block p3"><span class="tag">P3</span><div class="name">Construction cost benchmarking</div><p class="desc">Cost per square foot by building type across municipalities, plus component costs, as a check that tender numbers are in range.</p></div>
-    <div class="block p3"><span class="tag">P3</span><div class="name">Building permit fee estimation</div><p class="desc">Estimate permit fees from cost per square foot so the city's number goes into the pro forma without surprises.</p></div>
+  <div class="block p1"><span class="tag">P1</span><span class="num">08</span>
+    <div class="name">Assumption Ledger</div>
+    <p class="detail">A structured record of every material assumption behind a project: what is assumed, where it came from, when it was last verified, and what happens if it turns out to be wrong. Each entry carries a confidence level and an estimate of financial or process exposure, so the list can be sorted by what actually threatens the deal rather than by category. This turns the informal mental checklist experienced developers carry into something a team can share, hand off, and revisit years later. When a rule or fee changes, the ledger is what the alert system checks against to determine relevance. It is also the honest answer to "what are we not sure about," which is usually the most valuable page in any underwriting file.</p>
+    <p class="desc">Every material assumption: source, last checked, confidence, and what it costs if it turns out wrong.</p>
   </div>
-</section>
 
-<section>
-  <div class="sec-head"><span class="sec-num">10</span><h2>Outputs and collaboration</h2></div>
-  <div class="grid">
-    <div class="block p1"><span class="tag">P1</span><div class="name">Risk &amp; Action Register</div><p class="desc">Findings become persistent issues with owners, due dates, status, and resolution evidence.</p></div>
-    <div class="block p1"><span class="tag">P1</span><div class="name">Exports &amp; reporting</div><p class="desc">Shareable decision brief, issue register, and source appendix for internal and consultant review.</p></div>
-    <div class="block p2"><span class="tag">P2</span><div class="name">Ask This Project</div><p class="desc">Source-cited chat over verified project context, analyses, and documents. Explicitly not a blank chatbot.</p></div>
+  <div class="block p1"><span class="tag">P1</span><span class="num">09</span>
+    <div class="name">Verification &amp; citations</div>
+    <p class="detail">Every fact the product asserts links to its original source, carries a confidence label, and is checked against contradictory evidence before it is shown. Where sources disagree or coverage is thin, the item goes to a human-review queue rather than being smoothed over into a confident-sounding sentence. This reflects the explicit preference expressed in interviews for fact over generative summary, with opinion allowed only when clearly labeled as opinion. For a product whose output feeds underwriting and application decisions, a wrong number stated confidently is worse than no answer. Verification is therefore a first-class feature with its own interface, not a background implementation detail.</p>
+    <p class="desc">Original-source citations, confidence labels, contradictory-evidence checks, and a human-review queue. Fact over summary.</p>
   </div>
-</section>
+
+  <div class="block p1"><span class="tag">P1</span><span class="num">10</span>
+    <div class="name">Deterministic calculators</div>
+    <p class="detail">Applicable fees and ratios — FSR, density, unit counts, dedications, DCC and DCL amounts — are computed by approved formulas against stored inputs, never generated by a language model. The user sees the inputs, the formula, and the result, so any number can be checked line by line and defended to a partner or a city planner. This matches the developer's point that it is just a calculation on his area, and it guards against exactly the FSR and fee surprises that flip a project upside down. Because the underlying rates are time-versioned, the same calculator can be re-run against a prior date to show what changed and by how much. Determinism here is what makes the rest of the product safe to trust.</p>
+    <p class="desc">FSR, density, unit counts, dedications, and fees from approved formulas — never free-form model math.</p>
+  </div>
+
+  <div class="block p1"><span class="tag">P1</span><span class="num">11</span>
+    <div class="name">Project profile extraction</div>
+    <p class="detail">From uploaded drawings, reports, and correspondence, the system pulls the project's defining numbers: height, density, unit count, tenure, parking, setbacks, floor area, proposed uses, and any requested departures from zoning. The extracted set is then presented back to the user as a review gate, where the key facts must be confirmed before anything is built on top of them. That confirmation step is deliberate — it keeps a bad extraction from silently propagating into the baseline, the audit, and every alert afterward. It also makes onboarding feel like "upload whatever exists" rather than filling in a long form, which is what gets a busy developer through setup. Confirmed values flow straight into the calculators and the Assumption Ledger.</p>
+    <p class="desc">Pull height, density, units, tenure, parking, setbacks, floor area, uses, and departures — then confirm key facts with the user.</p>
+  </div>
+
+  <div class="block p1"><span class="tag">P1</span><span class="num">12</span>
+    <div class="name">File intake &amp; versioning</div>
+    <p class="detail">Users upload whatever a project already has — PDFs, spreadsheets, email correspondence, architectural and engineering drawings — and the system preserves every version alongside a full audit history. Nothing is overwritten, so the team can always see which drawing set a decision was based on and when it was superseded. This matters because development projects run through many revision loops, and confusion about which set is current is a real and expensive source of error. The intake path is intentionally forgiving: no required folder structure, no naming convention, no pre-processing by the user. Versioned files are the raw material that profile extraction and Ask This Project both read from.</p>
+    <p class="desc">Upload PDFs, spreadsheets, correspondence, and drawings with preserved versions and full audit history.</p>
+  </div>
+
+  <div class="block p1"><span class="tag">P1</span><span class="num">13</span>
+    <div class="name">Company, users &amp; permissions</div>
+    <p class="detail">Secure organization accounts with role-based access and per-project team membership, so a firm can bring its own people into the tool without exposing everything to everyone. The workflow deliberately spans a developer, one or more analysts, and eventually outside consultants, and each of those roles needs a different slice of the project. A consultant invited to review a drawing package should not see the pro forma assumptions or the firm's historical cost data. Permissions also make the product safe to use on deals with partners or JV structures where information boundaries are contractual. This is table stakes for selling to a firm rather than an individual, which is why it sits in P1 despite not being a selling point on its own.</p>
+    <p class="desc">Org accounts, role-based access, and project teams — developers, analysts, and consultants each see their own slice.</p>
+  </div>
+
+  <div class="block p1"><span class="tag">P1</span><span class="num">14</span>
+    <div class="name">Security &amp; admin controls</div>
+    <p class="detail">Encryption at rest and in transit, access and action logging, defined data retention, source management tooling, user support paths, and analytics on how the pilot is actually being used. Development files include confidential financial and legal material, so a firm's willingness to upload everything depends on being able to answer basic security questions credibly. Admin controls also cover the operational side: adding or retiring a data source, correcting a bad record, and seeing what the system did and when. Pilot analytics are what tell the team which features are used, which are ignored, and where users get stuck — the input to every prioritization call after this list. None of it is visible product value, and all of it is required before a paid pilot.</p>
+    <p class="desc">Encryption, logging, retention policy, source management, user support, and pilot analytics.</p>
+  </div>
+
+  <div class="block p1"><span class="tag">P1</span><span class="num">15</span>
+    <div class="name">Feature-run engine</div>
+    <p class="detail">A common framework for one-click analyses: Baseline Review, Fee Verification, Precedent Review, Amendment Risk, and Application Readiness. Each run is a predictable job with defined inputs, a verification pass, and a saved, timestamped result the user can return to or compare against a later run. Standardizing the shape of an analysis means new analyses can be added later without redesigning the interface or retraining the user. It also makes results reproducible, which matters when a number gets challenged months after it was produced. For the user the experience is a button and a result, not a prompt and a conversation.</p>
+    <p class="desc">One-click analyses — Baseline Review, Fee Verification, Precedent Review, Amendment Risk, Application Readiness — each a saved, verified job.</p>
+  </div>
+
+  <div class="block p1"><span class="tag">P1</span><span class="num">16</span>
+    <div class="name">Precedent search &amp; decision trace</div>
+    <p class="detail">Finds comparable applications nearby and reconstructs what actually happened to them from end to end. The trace covers the original proposal, the concerns staff raised, the revisions the applicant made in response, what council discussed, the conditions imposed, the timeline, and the final outcome. This is the work an analyst currently does by reading staff reports and council minutes for days, and it is the clearest case where the product replaces hours rather than shaving minutes. Knowing that a comparable project was approved only after cutting a storey, or was delayed five months over parking, changes how you design and how you sequence. The decision trace is also the substrate the gray-area precedent and council voting features are built on.</p>
+    <p class="desc">Comparable applications reconstructed end to end: original proposal, staff concerns, revisions, council discussion, conditions, outcome.</p>
+  </div>
+
+  <div class="block p1"><span class="tag">P1</span><span class="num">17</span>
+    <div class="name">Risk &amp; Action Register</div>
+    <p class="detail">Findings from any analysis convert into persistent, trackable issues rather than sitting inside a report nobody reopens. Each issue carries an owner, a due date, a current status, and the evidence used to resolve it, so closing an item means something specific. This covers the assign, track, and resolve workflow the team needs once more than one person touches a project. Because issues persist across the project's life, the register becomes the running record of what went wrong, who handled it, and how — which is exactly the institutional memory that walks out the door when staff turn over. It also gives alerts somewhere to land: a change that invalidates an assumption can open an issue automatically.</p>
+    <p class="desc">Findings become persistent issues with owners, due dates, status, and resolution evidence.</p>
+  </div>
+
+  <div class="block p1"><span class="tag">P1</span><span class="num">18</span>
+    <div class="name">Exports &amp; reporting</div>
+    <p class="detail">Shareable outputs in three forms: a decision brief for partners and lenders, an issue register for the working team, and a source appendix that lets any reader verify the underlying claims. Development decisions are made in meetings with people who will never log into the product, so the export is often what actually gets read. The source appendix matters more than it sounds — it is what turns "the tool said so" into a defensible position with a consultant or a city planner. Exports also serve as the natural distribution channel: a good brief circulating inside a firm is how the second and third seat get sold. Formatting quality is a genuine requirement here rather than a polish item.</p>
+    <p class="desc">Shareable decision brief, issue register, and source appendix for internal and consultant review.</p>
+  </div>
+
+  <div class="block p2"><span class="tag">P2</span><span class="num">19</span>
+    <div class="name">Gray-area departure precedent</div>
+    <p class="detail">Surfaces where a municipality or a specific council member has actually permitted a departure from written zoning — the example given was a 2.5 metre setback approved where 3 metres is required. Results are scoped to a meaningful area, such as within the same NCP or a 500 metre radius, because precedent from across the city carries much less weight. This was flagged as high value for two compounding reasons: it saves design time by showing what is worth asking for, and it yields more sellable square footage when a departure lands. It is the sharpest extension of the council-voting work — the gap between what the bylaw says and what the municipality has tolerated in practice is where experienced developers make money. Every surfaced departure cites the specific application and decision that established it.</p>
+    <p class="desc">Where a council or member has actually allowed a departure — a 2.5m setback where 3m is required — within the NCP or a 500m radius.</p>
+  </div>
+
+  <div class="block p2"><span class="tag">P2</span><span class="num">20</span>
+    <div class="name">Council voting behaviour profile</div>
+    <p class="detail">A per-member read of how each council member has voted on projects comparable to yours, and the themes they consistently back or resist. Every point in a profile cites the specific meeting and item it came from, so the profile is a summary of the record rather than a characterization. For a developer deciding how to frame an application — or whether to push for a departure at all — knowing that two members reliably object to reduced parking is directly actionable. It also helps with timing, since a council's composition changes and the same proposal can fare very differently before and after an election. This is intelligence that currently exists only in the heads of consultants who have sat through years of meetings.</p>
+    <p class="desc">Per-member read of how each has voted on comparable projects and the themes they back or resist, each point cited to a meeting.</p>
+  </div>
+
+  <div class="block p2"><span class="tag">P2</span><span class="num">21</span>
+    <div class="name">Live council meeting summarization</div>
+    <p class="detail">Pulls the gist of a specific council item out of live meeting records and turns it into a short, readable comment. Alongside it sits a summary of what council actually debated and emphasized versus what the written OCP or NCP formally says, which is often a meaningfully different picture. This was described as a fantastic tool because the alternative is sitting through three-hour meetings or waiting five months for an item to reach council to learn what the sentiment is. Getting the read early changes what you submit rather than what you appeal. It also feeds the voting profile and gray-area precedent features with fresh material as meetings happen.</p>
+    <p class="desc">The gist of a specific council item, and what council actually debated versus what the written OCP or NCP says. No 3-hour meetings.</p>
+  </div>
+
+  <div class="block p2"><span class="tag">P2</span><span class="num">22</span>
+    <div class="name">Competition alerts</div>
+    <p class="detail">Notifies the user when someone files a similar product type nearby, or when a large nearby development is coming that will affect absorption — the example given was 500 condo units two blocks away completing just after yours. Alerts are filterable by the municipalities and product types the user actually works in, so a townhouse developer is not buried in high-rise filings. This partly overlaps Project Watch but was treated as its own retention hook, because it stays relevant even when the user has no active project. Knowing about competing supply early affects unit mix, pricing, and launch timing, all of which are cheap to change early and expensive to change late. It is also the feature most likely to be forwarded to a colleague, which makes it a quiet growth channel.</p>
+    <p class="desc">Flags similar product filed nearby, or 500 condo units two blocks away completing just after yours. Filterable by market.</p>
+  </div>
+
+  <div class="block p2"><span class="tag">P2</span><span class="num">23</span>
+    <div class="name">Zoning map aggregation</div>
+    <p class="detail">One map interface covering every municipality a user works in, replacing the current practice of keeping many municipal maps open across a single screen. Each city publishes its own map with its own layer names, conventions, and quirks, so working across a region means learning several tools that do the same job differently. Aggregation was flagged as immediately useful precisely because the pain is constant and low-grade rather than dramatic. The value grows directly with municipal coverage, which makes this a natural companion to expanding the source registry beyond Vancouver. It is also the most demo-able feature on the list, since the before-and-after is visible in one screenshot.</p>
+    <p class="desc">Every municipality a user works in, in one place, instead of ten city maps open across one screen.</p>
+  </div>
+
+  <div class="block p2"><span class="tag">P2</span><span class="num">24</span>
+    <div class="name">Ask This Project</div>
+    <p class="detail">Source-cited chat scoped to a single project's verified context, completed analyses, and uploaded documents. Explicitly not a blank chatbot — the model answers from what has been verified for this site, and every answer carries citations back to the document or source it came from. This is how a user asks the long tail of questions the structured features do not anticipate, without the product having to build an interface for each one. Scoping to the project is what keeps answers trustworthy and keeps the feature from becoming a general-purpose assistant that invents bylaws. It sits at P2 because it is only as good as the verified context beneath it, which means the P1 blocks have to land first.</p>
+    <p class="desc">Source-cited chat over verified project context, analyses, and documents. Explicitly not a blank chatbot.</p>
+  </div>
+
+  <div class="block p2"><span class="tag">P2</span><span class="num">25</span>
+    <div class="name">Issue backlog log</div>
+    <p class="detail">A running log of past issues tied to a project so they resurface at the moment they matter again — the phrasing used was "do not forget we had this issue tying into this thing." Development timelines are long enough that a problem identified during rezoning is genuinely forgotten by the time it becomes relevant at building permit. The log is deliberately low-effort to maintain, capturing issues as they are closed in the Risk and Action Register rather than asking for separate note-taking. Its value shows up months later, when a resurfaced item prevents a repeat of an expensive mistake. It also preserves project knowledge across staff turnover, which is where most of this history is currently lost.</p>
+    <p class="desc">A running log of past issues tied to the project so they resurface later instead of being forgotten.</p>
+  </div>
+
+  <div class="block p2"><span class="tag">P2/P3</span><span class="num">26</span>
+    <div class="name">Consultant requirement &amp; dependency checklist</div>
+    <p class="detail">Per-discipline checks across mechanical, electrical, sanitary, storm, water, landscape, and geotechnical, plus utility coordination with BC Hydro, Telus, Shaw, and Fortis gas, confirming each package was reviewed and is in. The cost of missing one is not theoretical: the example given was a $100k hit from pipes placed wrong because nobody cross-checked the drawings between disciplines. This was described as the real pain once research is handled, which is why its priority is genuinely unresolved rather than simply deferred. The counterargument for holding it is that coordination is a workflow product with a different shape than a research product, and building both at once risks doing neither well. See the open decision below.</p>
+    <p class="desc">Per-discipline and utility checks confirming each package was reviewed and is "in." Mispiped drawings once cost $100k.</p>
+  </div>
+
+  <div class="block p2"><span class="tag">P2/P3</span><span class="num">27</span>
+    <div class="name">Approval sequence &amp; governance map</div>
+    <p class="detail">Lays out the required order of approvals — city first, then BC Hydro, then the remaining utilities — and identifies who governs each decision along the way. The sequencing matters because approvals are dependent rather than parallel, and discovering a dependency late can add months for work that took days. Making the lag each step adds visible helps a developer plan realistically instead of assuming a best case that never happens. It also clarifies who to actually call when something stalls, which is knowledge that currently lives with experienced consultants. Like the checklist above, this is coordination rather than research, and its placement depends on the same open decision.</p>
+    <p class="desc">The required order of approvals — city, then BC Hydro, then utilities — and who governs each decision, with the lag each adds.</p>
+  </div>
+
+  <div class="block p3"><span class="tag">P3</span><span class="num">28</span>
+    <div class="name">Local sales comps &amp; feasibility check</div>
+    <p class="detail">Land and product sales in the area with dollar-per-square-foot figures and the timeframe those sales occurred in, alongside average cost per unit by product type — condo, townhouse, single family. The purpose is a fast "does this pencil" gut check rather than a full pro forma: build at $600, sell at $1,100, does that work here. Timeframe is as important as price, because a comp from a hot market eighteen months ago can be actively misleading today. This sits at P3 partly because comparable data is available from other sources, so it strengthens the product rather than differentiating it. It matters most to newer or expanding firms who do not already carry these numbers in their heads.</p>
+    <p class="desc">Local land and product sales with dollar-per-square-foot and timeframe, plus cost per unit by product type. Does it pencil?</p>
+  </div>
+
+  <div class="block p3"><span class="tag">P3</span><span class="num">29</span>
+    <div class="name">Building permit fee estimation</div>
+    <p class="detail">Estimates building permit fees from cost per square foot, since municipalities charge on that basis, giving the user a defensible number to plug into a pro forma. The failure mode this prevents is concrete and common: assuming $200 per square foot and having the city come back at $300, on a line item large enough to matter. Because the underlying fee schedules are already time-versioned in the data core, this feature is mostly a calculator layered on data the product will already hold. It also pairs naturally with cost benchmarking, since one feeds the other. P3 reflects sequencing rather than low value — it is genuinely useful, just later in the workflow than the MVP wedge.</p>
+    <p class="desc">Estimate permit fees from cost per square foot so the city's number goes into the pro forma without surprises.</p>
+  </div>
+
+  <div class="block p3"><span class="tag">P3</span><span class="num">30</span>
+    <div class="name">Construction cost benchmarking</div>
+    <p class="detail">Cost per square foot by building type across municipalities and provinces, with ConCost referenced as an existing comparable, plus component-level costs for concrete, wood, and fixtures. The use case is checking that tender numbers are in a sane range before accepting or challenging them. Bidder counts were noted to have swung from two or three up to thirteen or fourteen, so pricing moves substantially with market conditions and a stale benchmark is worse than none. This is one of the few features that stays useful during construction rather than only at the decision stage, which extends the product's relevance across the project lifecycle. It is P3 because it addresses a phase well past the first paid decision workflow.</p>
+    <p class="desc">Cost per square foot by building type across municipalities, plus component costs, as a check that tender numbers are in range.</p>
+  </div>
+
+  <div class="block p3"><span class="tag">P3</span><span class="num">31</span>
+    <div class="name">Competitor extras analysis</div>
+    <p class="detail">Shows what competing projects in the area are actually offering — second fridge, air conditioning, wood-floor upgrades, basement suite — so a user knows the minimum competitive standard without commissioning full marketing research. Getting this wrong is expensive in both directions: under-spec and units sit, over-spec and margin disappears on features buyers were not weighing. The information exists publicly in sales materials and listings, it is just tedious to gather and quickly goes stale. This is a small feature with a clear payoff that mostly benefits users at the sales and marketing stage. It sits at P3 as an expansion of the competition monitoring rather than a standalone reason to buy.</p>
+    <p class="desc">What nearby competitors offer — second fridge, AC, wood floors, basement suite — so you know the minimum competitive standard.</p>
+  </div>
+
+  <div class="block p3"><span class="tag">P3</span><span class="num">32</span>
+    <div class="name">Client standards absorption</div>
+    <p class="detail">Pre-loads a firm's own historical numbers and standards — their dollar-per-square-foot from past projects, their preferred assumptions, their internal benchmarks — so their data is ready to use without repeated back-and-forth. This was suggested specifically as the way to make the product fit veterans, who already have better internal numbers than any external benchmark can offer. Once loaded, every analysis can compare against the firm's own history rather than a generic regional average, which is a meaningfully different and more persuasive output. It also raises switching costs in a way that is genuinely earned rather than artificial. P3 reflects that it requires an established relationship and clean historical data, neither of which exists at pilot.</p>
+    <p class="desc">Pre-load a firm's own historical numbers and standards so their data is ready to drop in without repeat conversations.</p>
+  </div>
+
+  <div class="block p3"><span class="tag">P3</span><span class="num">33</span>
+    <div class="name">Growth forecasting</div>
+    <p class="detail">Surfaces the GVRD growth strategy, municipal OCPs, and transit plans including SkyTrain and bus route expansion to show where regional growth is actually heading. The purpose is timing land acquisition: getting into an area before prices reflect what is coming is one of the largest single returns available in development. All of this information is public, but it is spread across regional, municipal, and transit-authority documents that are rarely read together. Presenting it as a coherent picture is the whole feature. It sits at P3 because it serves acquisition strategy rather than the project-level decision workflow the MVP is built around.</p>
+    <p class="desc">GVRD growth strategy, municipal OCPs, and transit plans, so users get into an area before land prices climb.</p>
+  </div>
+
+  <div class="block p3"><span class="tag">P3</span><span class="num">34</span>
+    <div class="name">Neighborhood context &amp; site signals</div>
+    <p class="detail">Ideally visual context for a site: transit access, bus routes, malls, and nearby amenities, so a user can quickly judge whether a location is simply too far out. The informal test described was whether there is a mall within a fifteen-minute drive, which is a crude proxy that experienced developers apply almost unconsciously. Making it explicit mostly protects less experienced users from committing to deals that are too remote to sell well. For veterans this is confirmation rather than discovery, which is why it sits at P3. The value is in the speed of the read — a map that answers the question in ten seconds beats a report that answers it in ten minutes.</p>
+    <p class="desc">Visual transit, bus, mall, and amenity context — the "no mall within a 15-minute drive" test that keeps users out of bad deals.</p>
+  </div>
+
+</div>
 
 <div class="notes">
   <h2>Principles, deferrals, and open decisions</h2>
   <div class="grid">
     <div class="note"><h3>Simplicity and stability</h3><p>Dead simple for a non-technical user, and no gratuitous changes to settings or layouts. Stability over novelty.</p></div>
-    <div class="note"><h3>Sectioned, role-based views</h3><p>Clearly delineated sections — zoning, dollar per square foot, sales, finance — so each role focuses and skips the rest.</p></div>
+    <div class="note"><h3>Sectioned, role-based views</h3><p>Clearly delineated views — zoning, dollar per square foot, sales, finance — so each role focuses and skips the rest.</p></div>
     <div class="note def"><h3>Deferred out of V1</h3><p>No permit submission, code certification, construction management, or universal approval-probability score. Crowded or liability-heavy.</p></div>
     <div class="note def"><h3>Marketplace &amp; advertising</h3><p>Far future and permissioned only. Zero tolerance for unsolicited spam, so any such feature needs a hard off switch.</p></div>
-    <div class="note open"><h3>Open: consultant scope</h3><p>Coordination may be the primary time sink once research is solved. Core to the wedge, or fast follow?</p></div>
+    <div class="note open"><h3>Open: consultant scope</h3><p>Coordination may be the primary time sink once research is solved. Core to the wedge, or fast follow? Affects #26 and #27.</p></div>
     <div class="note open"><h3>Open: who the wedge is for</h3><p>Audit and baseline land newer firms; monitoring and cost intelligence retain veterans. Tag features by audience.</p></div>
   </div>
 </div>
@@ -232,12 +363,8 @@
     btns.forEach(x => x.classList.remove('on'));
     b.classList.add('on');
     const f = b.dataset.f;
-    document.querySelectorAll('.block').forEach(el => {
+    document.querySelectorAll('#grid .block').forEach(el => {
       el.classList.toggle('hide', f !== 'all' && !el.classList.contains(f));
-    });
-    document.querySelectorAll('section').forEach(s => {
-      const any = [...s.querySelectorAll('.block')].some(el => !el.classList.contains('hide'));
-      s.style.display = any ? '' : 'none';
     });
   }));
 </script>
