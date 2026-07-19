@@ -24,7 +24,7 @@
     line-height:1.5;
     padding:48px 32px 80px;
   }
-  .wrap{max-width:1400px;margin:0 auto}
+  .wrap{max-width:860px;margin:0 auto}
 
   header{margin-bottom:34px;border-bottom:1px solid var(--line);padding-bottom:28px}
   h1{font-size:34px;letter-spacing:-.02em;font-weight:700}
@@ -45,10 +45,11 @@
 
   .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(400px,1fr));
-    gap:22px;
+    grid-template-columns:1fr;
+    gap:26px;
     margin-top:34px;
     align-items:start;
+    max-width:860px;
   }
 
   /* lego block */
@@ -105,7 +106,7 @@
 
   .notes{margin-top:60px;border-top:1px solid var(--line);padding-top:32px}
   .notes h2{font-size:19px;font-weight:650;margin-bottom:16px;letter-spacing:-.01em}
-  .notes .grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr));margin-top:0}
+  .notes .grid{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:0}
   .note{background:var(--panel);border:1px solid var(--line);border-left:3px solid #3a4557;
         border-radius:8px;padding:16px 18px;margin-top:0}
   .note h3{font-size:14px;font-weight:650;margin-bottom:6px}
