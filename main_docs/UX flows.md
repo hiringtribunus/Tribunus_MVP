@@ -31,7 +31,7 @@ The interface should never give equal visual weight to every available feature. 
 
 ## 2. Source-of-truth decisions used in this blueprint
 
-This UX uses the locked [Locked feature list](locked_feature_list.md) as the scope authority. The [focus memo](clarifications.md) supplies product emphasis—large developers, entitlement and approval-risk intelligence, portfolio monitoring, and cited outputs—but its still-open cut decisions are not treated as approved feature changes. The [domain guide](domain_knowledge.md), [AI architecture](ai_architecture.md), interview notes, and [tech stack](tech_stack.md) inform terminology, trust states, and visual language.
+This UX uses the [locked feature list](locked_feature_list.md) as the scope authority. The [focus memo](clarifications.md) supplies product emphasis—large developers, entitlement and approval-risk intelligence, portfolio monitoring, and cited outputs—but its still-open cut decisions are not treated as approved feature changes. The [domain guide](domain_knowledge.md), [AI architecture](ai_architecture.md), interview notes, and [tech stack](tech_stack.md) inform terminology, trust states, and visual language.
 
 Where the repository contains competing directions, this document resolves the **presentation**, not the scope:
 
