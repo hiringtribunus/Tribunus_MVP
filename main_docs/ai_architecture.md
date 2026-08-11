@@ -4,7 +4,7 @@
 
 **Status:** Proposed · **Date:** August 2026
 
-**Companions:** [tech_stack.md](tech_stack.md) — the general, feature-agnostic stack and conventions (start there) · [mvp_feature_list.md](mvp_feature_list.md) — the feature set this serves.
+**Companions:** [tech_stack.md](tech_stack.md) — the general, feature-agnostic stack and conventions (start there) · [locked_feature_list.md](locked_feature_list.md) — the feature set this serves.
 
 ---
 
@@ -72,7 +72,7 @@ If orchestration outgrows this — genuinely long multi-day workflows, complex f
 
 ## 3. Feature slices
 
-The features from [mvp_feature_list.md](mvp_feature_list.md) map onto the slice layout in [tech_stack.md](tech_stack.md) §6:
+The features from [locked_feature_list.md](locked_feature_list.md) map onto the slice layout in [tech_stack.md](tech_stack.md) §6:
 
 ```
 features/

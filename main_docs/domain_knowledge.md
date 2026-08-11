@@ -1,6 +1,6 @@
 # Tribunus — Domain Knowledge: BC / Metro Vancouver Real Estate Development
 
-*A working reference for the permitting, fees, legislation, and developer economics Tribunus has to reason about. Focused on the pilot jurisdictions — City of Vancouver and City of Coquitlam — plus the regional (Metro Vancouver) and provincial layers that sit above them. Companion to [mvp_feature_list.md](mvp_feature_list.md) and [tech_stack.md](tech_stack.md).*
+*A working reference for the permitting, fees, legislation, and developer economics Tribunus has to reason about. Focused on the pilot jurisdictions — City of Vancouver and City of Coquitlam — plus the regional (Metro Vancouver) and provincial layers that sit above them. Companion to [locked_feature_list.md](locked_feature_list.md) and [tech_stack.md](tech_stack.md).*
 
 **Status:** Reference · **Compiled:** August 2026 · **Verify rates before quoting — they move.**
 

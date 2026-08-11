@@ -1,8 +1,18 @@
-# Tribunus — MVP Feature List (v2, consolidated)
+# Tribunus — LOCKED Feature List (v2)
 
-*The agreed MVP feature set, restructured to remove overlap. Same scope as v1 — the entries from Usman's and Gurinder's merged lists are regrouped so each feature is a single, ownable "Lego block" (one feature = one folder = one owner). Rationale and the full before→after mapping live in [feature_consolidation_proposal.md](feature_consolidation_proposal.md); the pre-consolidation list is preserved at [mvp_feature_list_v1_original.md](mvp_feature_list_v1_original.md).*
+> ## 🔒 This is the scope authority
+>
+> **19 full features (F1–F19) + 6 placeholders (P1–P6). This is what we are building. Nothing else is in scope.**
+>
+> **No other document changes this list.** Strategy memos, interview notes, market research, and product reviews are *inputs* — they may recommend, argue, or disagree, but they do not alter scope. If it isn't in this file, it isn't being built.
+>
+> **To change scope**, edit *this* file, bump the version, and say so explicitly. A recommendation living in another doc is not a decision.
+>
+> **Known dissenting inputs** — recorded so they aren't mistaken for pending changes: [clarifications.md](clarifications.md) recommends deferring F17/F18 and pulling in an outcome loop; [kevin_insights.md](../gurinder_docs/kevin_insights.md) suggests additional data sources. **Neither is approved. Both are deliberately not reflected below.** Revisit after the pilot.
 
-**Status:** Locked for development (v2) · **Date:** August 2026 · **Count:** 19 full features + 6 placeholders (was 26 + 7)
+*The agreed feature set, restructured to remove overlap. Same scope as v1 — the entries from Usman's and Gurinder's merged lists are regrouped so each feature is a single, ownable "Lego block" (one feature = one folder = one owner). Rationale and the full before→after mapping live in [feature_consolidation_proposal.md](feature_consolidation_proposal.md); the pre-consolidation list is preserved at [mvp_feature_list_v1_original.md](mvp_feature_list_v1_original.md).*
+
+**Status:** 🔒 **LOCKED** (v2) · **Date:** August 2026 · **Count:** 19 full features + 6 placeholders (was 26 + 7)
 
 ## How to read this list
 

@@ -1,6 +1,6 @@
 # Tribunus — MVP Focus: Decisions & Open Questions (for the CEO)
 
-*Purpose: our consolidated MVP is a coherent 19-feature product (see [mvp_feature_list.md](mvp_feature_list.md)), but a product-lens review found it quietly spanned roughly **three different wedges** — three jobs, three buyers, three competitive fields. MVP doctrine says pick **one** wedge and be undeniably great at it; breadth is the expansion path, not the start. Two of those choices are **already decided** (below); this doc records them so they're not re-litigated, then puts the three **genuinely open** decisions to the CEO. Supporting analysis: [feature_consolidation_proposal.md](feature_consolidation_proposal.md) and [domain_knowledge.md](domain_knowledge.md).*
+*Purpose: our consolidated MVP is a coherent 19-feature product (see [locked_feature_list.md](locked_feature_list.md)), but a product-lens review found it quietly spanned roughly **three different wedges** — three jobs, three buyers, three competitive fields. MVP doctrine says pick **one** wedge and be undeniably great at it; breadth is the expansion path, not the start. Two of those choices are **already decided** (below); this doc records them so they're not re-litigated, then puts the three **genuinely open** decisions to the CEO. Supporting analysis: [feature_consolidation_proposal.md](feature_consolidation_proposal.md) and [domain_knowledge.md](domain_knowledge.md).*
 
 **Date:** August 2026 · **Outcome:** a focused pilot scope + a "pilot vs. expansion vs. placeholder" tiering of the 19 features.
 

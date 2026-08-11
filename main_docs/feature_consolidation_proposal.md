@@ -1,6 +1,6 @@
 # Tribunus — MVP Feature List Consolidation Proposal
 
-*A project-manager's pass over [mvp_feature_list.md](mvp_feature_list.md) to merge overlapping entries into fewer, cleaner, assignable feature slices — without changing scope. Nothing here is deleted; things are grouped.*
+*A project-manager's pass over [locked_feature_list.md](locked_feature_list.md) to merge overlapping entries into fewer, cleaner, assignable feature slices — without changing scope. Nothing here is deleted; things are grouped.*
 
 **Status:** Proposal for review (Usman + Gurinder) · **Date:** August 2026 · **The locked list is unchanged; this is a restructuring suggestion.**
 
@@ -138,4 +138,4 @@ The list wasn't bloated with junk — it was a clean *union* of two people's lis
 
 My one real recommendation to *discuss* rather than just accept is **F11** (merging the assumption ledger and risk register). It's the right engineering call, but the assumption ledger is your strategic centrepiece, so make the merge a deliberate decision, not a silent one — and if it feels wrong, take the fallback (two features, one shared table).
 
-Everything else I'd treat as low-risk cleanup. If you're happy with this, the natural next step is for me to produce a **revised `mvp_feature_list.md`** written against the 19-feature structure (same descriptions, regrouped), plus a suggested **owner-per-feature** cut so you and Gurinder can divide them. Say the word and I'll draft it.
+Everything else I'd treat as low-risk cleanup. If you're happy with this, the natural next step is for me to produce a **revised `locked_feature_list.md`** written against the 19-feature structure (same descriptions, regrouped), plus a suggested **owner-per-feature** cut so you and Gurinder can divide them. Say the word and I'll draft it.

@@ -4,7 +4,7 @@
 
 **Status:** Deferred (post-MVP) · **Date:** July 2026
 
-For the features being built now, see [mvp_feature_list.md](mvp_feature_list.md).
+For the features being built now, see [locked_feature_list.md](locked_feature_list.md).
 
 ---
 
