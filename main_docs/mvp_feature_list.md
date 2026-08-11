@@ -9,7 +9,7 @@
 - **Full features** are built for real, backend and all.
 - **Placeholder features** appear in the product and look complete, but the backend is intentionally **not** wired up yet. They are labelled `[PLACEHOLDER]`.
 - Each feature carries a **Consolidates** note (which v1 items it now contains), a suggested **Owner track**, and **Depends on** (what should exist first). Owner tracks (A–G) are logical groupings you can map onto engineers; see §Ownership at the end.
-- Deferred features live in [deferred_feature_list.md](deferred_feature_list.md). Domain context is in [domain_knowledge.md](domain_knowledge.md).
+- Deferred features live in [deferred_feature_list.md](deferred_feature_list.md). Domain context is in [domain_knowledge.md](domain_knowledge.md). How these get built: [ai_architecture.md](ai_architecture.md) (product-specific) and [tech_stack.md](tech_stack.md) (general stack and conventions).
 
 ---
 

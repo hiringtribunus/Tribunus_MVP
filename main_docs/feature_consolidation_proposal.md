@@ -52,7 +52,7 @@ Four merges do almost all the work: **F10** (the analysis engine), **F11** (the 
 
 This is the biggest and most clearly-correct consolidation. Read the originals literally: #13 Application Readiness Review says *"Runs as part of the Development Review,"* and #12 already promises to return *"likely pathway"* and *"applicable charges"* — so #14 Approval Pathway is an **output** of #12, not a sibling of it. #24 Timeline Forecasting is just the *temporal* dimension of that same pathway (stages → how long each takes). These aren't four features; they're one orchestrator (#12) and three of the analyses it fires and synthesizes.
 
-This also matches the architecture already written in [tech_stack.md](tech_stack.md), which describes a single `development-review/` feature folder as *"the orchestrator + the workflows."* Keeping them as one feature (with Readiness, Pathway, and Timeline as internal workflow files) means one owner is responsible for the coherence of the headline "Run Development Review" result — instead of three people shipping pieces that have to agree at runtime. **Assign to your strongest engineer; it's the core "aha."**
+This also matches the architecture already written in [ai_architecture.md](ai_architecture.md), which describes a single `development-review/` feature folder as *"the orchestrator + its workflows."* Keeping them as one feature (with Readiness, Pathway, and Timeline as internal workflow files) means one owner is responsible for the coherence of the headline "Run Development Review" result — instead of three people shipping pieces that have to agree at runtime. **Assign to your strongest engineer; it's the core "aha."**
 
 ### F11 — Findings Register merges the Assumption Ledger and the Risk & Action Register (11 + 17)
 
@@ -134,7 +134,7 @@ Result: **26 full → 19**, **7 placeholder → 6**, **33 total → 25**. Scope 
 
 ## 7. Final thoughts
 
-The list wasn't bloated with junk — it was a clean *union* of two people's lists, which naturally produces the same feature described twice and a few over-thin splits. Four merges fix most of it and, helpfully, pull the structure **toward** the architecture you already chose rather than against it: the Development Review consolidation (F10) is literally how [tech_stack.md](tech_stack.md) already describes the feature folder, and the shared-entity model there (`finding`, `assumption`, `risk`) already implies the Findings Register (F11).
+The list wasn't bloated with junk — it was a clean *union* of two people's lists, which naturally produces the same feature described twice and a few over-thin splits. Four merges fix most of it and, helpfully, pull the structure **toward** the architecture you already chose rather than against it: the Development Review consolidation (F10) is literally how [ai_architecture.md](ai_architecture.md) already describes the feature folder, and the shared-entity model (`finding`, `assumption`, `risk`) already implies the Findings Register (F11).
 
 My one real recommendation to *discuss* rather than just accept is **F11** (merging the assumption ledger and risk register). It's the right engineering call, but the assumption ledger is your strategic centrepiece, so make the merge a deliberate decision, not a silent one — and if it feels wrong, take the fallback (two features, one shared table).
 

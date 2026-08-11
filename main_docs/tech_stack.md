@@ -1,268 +1,306 @@
-# Tribunus — Tech Stack & Architecture Plan
+# Tech Stack & Engineering Conventions
 
-*How we build Tribunus so multiple developers can ship complex AI features in parallel, each as a self-contained "Lego block," with near-zero git conflict — starting as an MVP but scaling to many client firms.*
+*The default stack, architecture patterns, and design language for this codebase. Deliberately **general** — this doc describes **how** we build, never **what** we build.*
 
-**Status:** Recommended default · **Date:** August 2026 · Companion to [mvp_feature_list.md](mvp_feature_list.md)
+**Status:** Recommended default · **Date:** August 2026
 
-> **How to read this doc.** This is the **recommended starting stack**, not a cage. Its job is to remove a hundred small "which library?" decisions before development starts, so every developer — and every AI agent working in this repo — makes the same predictable choice by default. Where a feature genuinely needs something else (a specialist parsing library, a different queue, a service in another language), we add it deliberately and note why. The defaults exist to be boring; the interesting problems are in the AI layer (§6), not in tooling debates.
-
----
-
-## 1. What we're actually building (the technical shape)
-
-Tribunus is **not** a chatbot. It's a **developer-side risk-control platform** that turns fragmented municipal data + a firm's private project documents into cited, verifiable findings. The stack has to be good at six things at once:
-
-| Requirement (from the feature list) | Technical demand |
-| --- | --- |
-| Document upload, versioning, extraction (F4, F5) | File storage, PDF/Office/image parsing, OCR fallback |
-| Cited baselines, assumptions & risks register (F6, F11) | Structured, versioned, multi-tenant relational data with an audit trail |
-| **Every claim traces to a source** (F14 — the trust backbone) | Native citation mapping (page/section/char) from the LLM, not free-form summaries |
-| "Run Development Review" fires several AI workflows → one result (F10) | Orchestrated, resumable **agentic/LLM workflows** with structured JSON output + independent verification |
-| Deterministic calculators for FSR/fees (F8) | Plain, testable code — **never** the LLM doing arithmetic |
-| Human-in-the-loop review, Project Watch monitoring (F15, F13) | Internal review console + background jobs / scheduled monitoring |
-| Multiple firms, isolated data (F1) | Multi-tenant isolation from day one |
-
-The one constraint that shapes **everything below**: *multiple developers building complex features in parallel with minimal merge conflict, each feature a plug-in Lego block.*
+> **How to read this doc.**
+>
+> **This is not tied to any feature, and it shouldn't be.** Features change constantly; the stack underneath them should not. Nothing here references a specific product feature, and nothing here should be edited when the feature list changes. If you find yourself adding "…for the fees screen" to this doc, it belongs in a feature spec instead.
+>
+> **These are defaults, not rules.** The point is to remove a hundred small "which library?" decisions before development starts, so every developer — and every AI agent working in this repo — reaches for the same thing by default. Where something genuinely needs a different tool, we add it deliberately and write down why. The defaults exist to be boring; the interesting problems should be in the product, not in tooling debates.
+>
+> **It's chosen to be AI-agent-friendly.** Every pick below is weighted toward tools that coding agents already know cold, with predictable conventions and readable in-repo code. That's a real engineering criterion now, not a novelty.
 
 ---
 
-## 2. The core principle: a modular monolith of vertical feature slices
+## 1. Principles
 
-Merge conflicts almost never come from two people editing the *same feature*. They come from two people editing the **same shared central file** — the router that lists every route, the nav config, the one giant DB schema, the dependency-injection wiring. Industry consensus in 2026 (Shopify, Gusto, PlayTech case studies) is that a **modular monolith with vertical feature slices + strict internal contracts** gets you parallel-team velocity without the operational tax of microservices.
-
-We adopt three rules that make a feature a true Lego block:
-
-1. **A feature owns a folder, top to bottom.** UI, API routes, business logic, DB tables, migrations, LLM workflow, and tests for one feature all live in `features/<name>/`. You build a feature by *adding a folder*, not by touching a dozen shared files.
-2. **Features register themselves; nothing central lists them.** Routes, nav entries, background jobs, and analysis workflows are discovered from the filesystem or a per-feature manifest at boot. Adding a feature never edits a root `app` file or a master route table — the #1 source of conflicts.
-3. **Features talk through contracts, not each other's internals.** A small, slow-changing `packages/contracts` package holds the shared types/schemas. Features depend on contracts, never on another feature's guts. If feature A needs something from feature B, it goes through a published event or a contract interface.
-
-> **The test for "is this a real Lego block?"** — Two developers add two unrelated features on two branches. Both branches touch **only** their own `features/<name>/` folder plus, at most, an append-only migration file. `git merge` produces **zero** conflicts. Everything in this doc exists to make that true.
+1. **One language by default.** A feature should be one folder in one runtime. A feature that straddles two languages isn't one unit of work anymore — it's two, with a network hop and a second ORM between them.
+2. **Fewer vendors.** Every additional service is another SDK, another auth model, another set of docs, another dashboard. Consolidate unless there's a concrete reason not to.
+3. **Opinionated and predictable beats clever.** The stack should be the *obvious* one. Agents and new developers both perform dramatically better on conventional choices than on bespoke ones.
+4. **Code in the repo beats config in a dashboard.** Prefer tools whose behaviour is visible as readable source you can grep, diff, and review.
+5. **Escape hatches stay open.** Every choice below has a documented next step (§10). Nothing here requires a rewrite to scale.
 
 ---
 
-## 3. The stack
+## 2. The stack
 
-**TypeScript end to end, Supabase as the data platform, Vercel to host.** Two principles drive these picks:
-
-1. **One language by default.** A feature slice should be one folder in one runtime. A slice that straddles TypeScript *and* Python isn't really a Lego block anymore — it's two, with a network hop and a second ORM between them. We start single-language and add a second runtime only when a real need forces it (§3.1).
-2. **Fewer vendors, more predictable agents.** This stack is deliberately the one AI coding agents know best: Next.js and Supabase are among the most-represented tools in training data, shadcn/ui components are copied into our repo as plain readable code rather than hidden behind a library API, and Supabase ships an MCP server so an agent can inspect the live schema instead of guessing. Predictability is the feature.
+**TypeScript end to end, Supabase as the data platform, Vercel to host.**
 
 | Layer | Choice | Why |
 | --- | --- | --- |
-| **Frontend** | **Next.js (App Router) + React + TypeScript**, Tailwind CSS + shadcn/ui | Component-per-feature maps cleanly to slices; server components keep it fast; shadcn/ui gives us the "deliberately not a blank chatbot," polished-looking product (incl. placeholder features) quickly. |
-| **API / BFF** | **Next.js Route Handlers + Server Actions** for app/CRUD; **tRPC** (or typed REST) where we want end-to-end type safety | Type-safe client↔server with no hand-written API contracts; each feature adds its own router, auto-merged into the root. |
-| **AI / workflow layer** | **TypeScript, in-repo** — Anthropic SDK agentic tool-loops running as Next.js route handlers and background jobs | The Anthropic TS SDK does tool loops, structured outputs, and citations natively, so orchestration needs no separate service or language. Workflows stay inside their feature slice (§4). |
-| **Data platform** | **Supabase** — Postgres + Auth + Storage + pgvector + RLS in one box | Replaces what would otherwise be three vendors (managed Postgres + Clerk/WorkOS + S3). One SDK, one mental model, one set of docs for humans and agents. Its native idiom is **Postgres RLS for multi-tenancy** — exactly what §7 already mandates. Has an official **MCP server**, so agents can read the real schema. |
-| **Primary database** | **PostgreSQL** (via Supabase) | The correct default for ~95% of SaaS. Relational integrity for the assumption/risk registers, JSONB for flexible findings, RLS for tenant isolation, and pgvector — all in one engine. |
-| **Retrieval (semantic index)** | **pgvector** (same Postgres), used as a *tool the agent calls* — not a standalone RAG pipeline | Powers the recall half of our hybrid agentic search (see §6). The index surfaces candidate passages by meaning; the agent then reads the real files to verify and cite. Start in Postgres — no second datastore to operate. Swap to a dedicated vector DB only if scale forces it (see §8). |
-| **Documents source-of-truth** | **Versioned file repo per corpus** in **Supabase Storage** (S3-compatible), canonical; the semantic index is *derived* from it | Real files give real page/section citations, cheap incremental indexing, and Kevin's freshness/change-detection almost for free (see §6). |
-| **File storage** | **Supabase Storage**, signed upload/download URLs | Secure, versioned document storage with the same auth model as the database — no separate IAM to reason about. S3-compatible, so moving to R2/S3 later is a config change. |
-| **Auth & orgs** | **Supabase Auth** — email + magic link, org/membership tables with RLS policies | Firm workspaces, roles (Admin/Member/Viewer), invitations, and magic links (feature F1) without a second vendor. If enterprise SSO becomes a real sales blocker, swap in WorkOS behind the same session interface. |
-| **ORM / migrations** | **Drizzle** (TypeScript) | One ORM, one migration history. Schema is plain TS that reads like SQL — easy for agents to get right. **Per-feature migration files** are the key: append-only, timestamp-named, so two features' migrations never collide. |
-| **LLM provider** | **Anthropic Claude** (`claude-opus-5` for hard analysis, `claude-sonnet-5` for high-volume/cheaper steps), behind a thin **LLM-gateway abstraction** | Claude's **native Citations** feature (page/section/char-level source mapping) is a near-perfect fit for F14, the trust backbone. Structured outputs + extended thinking suit careful, verification-heavy work. The gateway keeps us from being locked to one vendor. |
-| **Document parsing** | **Claude's native PDF support** for most documents; a **hosted parsing API** (LlamaParse / Reducto / Mistral OCR) for scanned or heavily-tabular municipal PDFs | Keeps parsing a service call rather than a reason to run a Python fleet. This is the row most likely to change — see §3.1. |
-| **Background jobs / monitoring** | **Inngest** (TS-native, durable, runs on Vercel) | Project Watch (F13), scheduled monitoring, long-running reviews, and the weekly digest all need durable async execution — not request/response. Inngest gives retries, steps, and scheduling without operating Redis or a worker fleet. Supabase cron is fine for trivial periodic jobs. |
-| **Billing (later)** | **Stripe** | Pilot is manual; wire Stripe when pricing is validated. |
-| **Observability** | **Sentry** (errors) + **structured logs** + LLM tracing (Langfuse or the Anthropic console) | We *must* be able to trace a finding back through the workflow that produced it. |
-| **Repo & CI** | **Turborepo/pnpm monorepo**, GitHub + GitHub Actions, per-feature CODEOWNERS | One repo, cached builds, and **path-scoped CI** so a feature's tests run on its own files. |
-| **Hosting** | **Vercel** (Next.js + route handlers) + **Supabase** (managed Postgres/Auth/Storage) + **Inngest** (jobs) | Three managed services, no containers to operate for the MVP. Boring, scalable, no premature Kubernetes. |
-
-### 3.1 When we'd add Python
-
-Python's document-processing and OCR ecosystem is genuinely better than TypeScript's. If hosted parsing APIs turn out to be too inaccurate, too slow, or too expensive on real Vancouver/Coquitlam PDFs, the answer is a **single narrow Python service that does parsing and nothing else** — containerized on Railway/Render/Fly, called over HTTP, owning no tables and no business logic.
-
-That stays compatible with everything in this doc because feature slices depend only on the workflow-registry contract (§4), not on where parsing physically runs. What we're avoiding is the *default* split — two languages, two ORMs, and two deploy targets before we know we need them. Deterministic calculators (F8) stay in TypeScript either way: they're plain tested code, and they belong next to the features that call them.
+| **Language** | **TypeScript**, everywhere | One language across UI, API, jobs, and AI workflows. One toolchain, one type system, one set of shared types. |
+| **Frontend** | **Next.js (App Router) + React** | The most-represented framework in agent training data by a wide margin — agents scaffold routes and components with near-zero clarification. Server components keep it fast; the file-system router means adding a page never edits a shared route table. |
+| **Styling / UI** | **Tailwind CSS + shadcn/ui** | shadcn components are *copied into the repo* as plain readable code rather than hidden behind a library API — so they're greppable, diffable, and directly editable by agents. See §7 for the design language. |
+| **API layer** | **Next.js Route Handlers + Server Actions**; **tRPC** where end-to-end type safety earns its keep | Type-safe client↔server with no hand-written API contracts. Each feature adds its own router. |
+| **Data platform** | **Supabase** — Postgres + Auth + Storage + pgvector + row-level security, in one box | Replaces what would otherwise be three or four vendors. One SDK, one mental model, one set of docs. Ships an official **MCP server**, so an agent can read the real schema instead of guessing at it. |
+| **Database** | **PostgreSQL** | The correct default for ~95% of applications. Relational integrity, JSONB when you need flexibility, RLS for tenant isolation, and pgvector for semantic search — all in one engine, no second datastore to operate. |
+| **ORM / migrations** | **Drizzle** | One ORM, one migration history. Schema is plain TypeScript that reads like SQL — easy for agents to get right. Migrations are **append-only and timestamp-named**, so two branches never collide. |
+| **Auth** | **Supabase Auth** — email + magic link, org/membership tables governed by RLS | Workspaces, roles, and invitations without a second vendor. Swap in WorkOS behind the same session interface if enterprise SSO ever becomes a hard requirement. |
+| **File storage** | **Supabase Storage**, signed upload/download URLs | Same auth model as the database — no separate IAM to reason about. S3-compatible, so moving to R2/S3 later is a config change. |
+| **Background jobs** | **Inngest** — durable steps, retries, scheduling, runs on Vercel | Anything long-running, scheduled, or retryable belongs here rather than in a request. No Redis or worker fleet to operate. Supabase cron is fine for trivial periodic jobs. |
+| **LLM provider** | **Anthropic Claude** (`claude-opus-5` for hard reasoning, `claude-sonnet-5` for high-volume steps), behind a thin **LLM-gateway module** | Native citations, structured outputs, and extended thinking. The gateway keeps model IDs and provider quirks in one file instead of scattered across features. |
+| **Email** | **Resend** | Simple, TypeScript-native, React Email templates live in the repo. |
+| **Payments** | **Stripe**, when there's something to charge for | The default everyone and every agent already knows. |
+| **Observability** | **Sentry** (errors) + structured logs + LLM tracing (Langfuse or the provider console) | You must be able to trace any output back through the code path that produced it. |
+| **Testing** | **Vitest** (unit) + **Playwright** (e2e) | Fast, TS-native, conventional. |
+| **Repo & CI** | **Turborepo/pnpm monorepo**, GitHub + GitHub Actions, CODEOWNERS per area | One repo, cached builds, **path-scoped CI** so a change's tests run on its own files. |
+| **Hosting** | **Vercel** (web + API + workflows) + **Supabase** (data) + **Inngest** (jobs) | Three managed services, no containers to operate. Boring, scalable, no premature Kubernetes. |
 
 ---
 
-## 4. How a feature plugs in (the registry pattern — this is the whole game)
+## 3. When to deviate
 
-The reason features don't conflict is that **the app discovers them; a human never edits a central list.** Concretely:
+Deviating is fine. Deviating *silently* is not — add a short note to this section when you do.
 
-### Routes & navigation — self-registering
+- **A second language.** Justified when an ecosystem is genuinely better for a bounded job (Python for heavy document parsing, OCR, or scientific work). The shape that stays clean: **one narrow service that does that job and nothing else**, called over HTTP, owning no tables and no business logic. What we avoid is *starting* with a two-language split before we know we need one.
+- **A specialist datastore.** pgvector in Postgres is the default. A dedicated vector DB (Qdrant, Turbopuffer) is warranted only when recall or latency measurably demands it.
+- **A heavier workflow engine.** Inngest covers most durable orchestration. Temporal earns its complexity only for genuinely long-lived, multi-day, stateful workflows.
+- **Anything with a dashboard-only configuration model.** Push back hard. It won't be reviewable, and agents can't see it.
 
-Each feature ships a manifest describing what it exposes. A single loader globs `features/*/feature.config.ts` at boot. Adding a feature adds a file; it does not edit a shared router.
+---
+
+## 4. Architecture: a modular monolith of vertical slices
+
+Merge conflicts almost never come from two people editing the *same feature*. They come from two people editing the **same shared central file** — the router that lists every route, the nav config, one giant schema file, the dependency-injection wiring.
+
+Three rules make a feature a self-contained unit:
+
+1. **A feature owns a folder, top to bottom.** UI, API routes, business logic, tables, migrations, workflows, and tests for one feature all live in `features/<name>/`. You build a feature by *adding a folder*, not by touching a dozen shared files.
+2. **Features register themselves; nothing central lists them.** Routes, nav entries, background jobs, and workflows are discovered from the filesystem at boot. Adding a feature never edits a root `app` file or a master route table — the #1 source of conflicts.
+3. **Features talk through contracts, not each other's internals.** A small, slow-changing `packages/contracts` holds shared types and schemas. Features depend on contracts, never on another feature's guts. Cross-feature needs go through a published event or a contract interface.
+
+> **The test.** Two developers add two unrelated features on two branches. Both branches touch **only** their own `features/<name>/` folder plus, at most, an append-only migration file. `git merge` produces **zero** conflicts. Everything in this section exists to make that true.
+
+---
+
+## 5. How a feature plugs in — the registry pattern
+
+The reason features don't conflict is that **the app discovers them; a human never edits a central list.**
+
+Each feature ships a manifest. One loader globs them at boot.
 
 ```ts
-// features/assumption-ledger/feature.config.ts
+// features/<name>/feature.config.ts
 export default defineFeature({
-  id: "assumption-ledger",
-  nav: { label: "Assumptions", icon: "table", section: "analysis" },
-  routes: () => import("./routes"),        // API/tRPC router for this feature
-  page:   () => import("./ui/Page"),        // its screen(s)
-  jobs:   () => import("./jobs"),           // background jobs it owns
-  workflows: () => import("./workflows"),   // LLM workflows it registers
+  id: "example-feature",
+  nav: { label: "Example", icon: "table", section: "main" },
+  routes:    () => import("./routes"),     // API router for this feature
+  page:      () => import("./ui/Page"),    // its screen(s)
+  jobs:      () => import("./jobs"),       // background jobs it owns
+  workflows: () => import("./workflows"),  // AI workflows it registers
 });
 ```
 
 ```ts
-// app/registry.ts  — written ONCE, never edited when adding features
+// app/registry.ts — written ONCE, never edited when adding features
 const features = import.meta.glob("../features/*/feature.config.ts", { eager: true });
 export const registry = Object.values(features).map(m => m.default);
 ```
 
-### AI workflows — a registry too
-
-The five MVP Codex/Claude workflows (fact extraction → baseline → assumption analysis → precedent/risk → verification) each register themselves. "Run Development Review" (F10) asks the registry for the workflows tagged for that action and runs them — so adding a sixth workflow later is just dropping in a new file.
+AI workflows register the same way, so adding one is dropping in a file:
 
 ```ts
-// features/development-review/workflows/assumption-analysis.ts
+// features/<name>/workflows/<workflow>.ts
 export default defineWorkflow({
-  id: "assumption_analysis",
+  id: "example_workflow",
   version: "1.0",
-  stage: "review",
-  input:  AssumptionInput,      // zod schema
-  output: AssumptionLedger,     // structured JSON — validated, not free text
+  input:  ExampleInput,     // zod schema
+  output: ExampleOutput,    // structured JSON — validated, not free text
   async run(ctx) { ... },
 });
 ```
 
-### Database — per-feature tables + append-only migrations
-
-Each feature owns its tables (prefixed, e.g. `ledger_assumptions`) and its own migration files. Migrations are **timestamped and append-only**, so two branches never edit the same migration and Postgres applies them in order. No single hand-edited `schema.sql`.
+**Database:** each feature owns its tables (prefixed) and its own timestamped, append-only migration files. No hand-edited central schema.
 
 **Net effect:** the only shared files that ever change are `packages/contracts` (rare, deliberate, reviewed) and the append-only migrations folder. Everything else is add-a-folder.
 
 ---
 
-## 5. Suggested repository layout
+## 6. Repository layout
 
 ```
-tribunus/
+<repo>/
 ├─ apps/
 │  └─ web/                     # Next.js app (thin — mostly loads feature slices)
 │     └─ app/registry.ts       # the one auto-discovery loader
-├─ services/
-│  └─ parsing/                 # [ONLY IF NEEDED] narrow Python doc-parsing service (§3.1)
-├─ features/                   # ← every Lego block lives here
-│  ├─ project-portfolio/
-│  ├─ document-upload/
-│  ├─ project-profile/
-│  ├─ verified-baseline/
-│  ├─ fees-review/
-│  ├─ deterministic-calculators/   # plain code, heavily tested
-│  ├─ assumption-ledger/
-│  ├─ development-review/           # the orchestrator + the 5 workflows
-│  ├─ precedent-search/
-│  ├─ risk-register/
-│  ├─ project-watch/                # background monitoring + digest
-│  ├─ evidence-citations/           # the trust backbone
-│  ├─ analyst-review-console/       # human-in-the-loop
-│  ├─ reports-export/
-│  └─ ask-this-project/             # [PLACEHOLDER UI in MVP]
-│  # each feature/: ui/  api/  domain/  db/migrations/  workflows/  jobs/  tests/  feature.config.ts
-├─ packages/
-│  ├─ contracts/               # shared types/zod schemas — slow-changing, reviewed
-│  ├─ ui/                      # shared design-system primitives (shadcn/ui)
-│  ├─ llm-gateway/             # provider-abstracted Claude client + citations helpers
-│  └─ db/                      # Supabase client, Drizzle schema, RLS helpers, migration runner
-└─ turbo.json / pnpm-workspace.yaml
+├─ services/                   # [ONLY IF NEEDED] narrow single-purpose services (§3)
+├─ features/                   # ← every feature slice lives here
+│  └─ <feature-name>/
+│     ├─ ui/                   # screens and components
+│     ├─ api/                  # route handlers / router
+│     ├─ domain/               # business logic, plain testable functions
+│     ├─ db/migrations/        # append-only, timestamp-named
+│     ├─ workflows/            # AI workflows this feature registers
+│     ├─ jobs/                 # background jobs this feature owns
+│     ├─ tests/
+│     └─ feature.config.ts     # the manifest
+└─ packages/
+   ├─ contracts/               # shared types/zod schemas — slow-changing, reviewed
+   ├─ ui/                      # design-system primitives (shadcn/ui) + tokens (§7)
+   ├─ llm-gateway/             # provider-abstracted LLM client + citation helpers
+   └─ db/                      # Supabase client, Drizzle schema, RLS helpers
 ```
 
-Pair this with **CODEOWNERS** (`/features/fees-review/ @dev-a`) so each Lego block has a clear owner and reviews route automatically.
+Pair with **CODEOWNERS** (`/features/<name>/ @dev`) so each slice has a clear owner and reviews route automatically.
 
 ---
 
-## 6. The AI layer — hybrid agentic retrieval
+## 7. Design language
 
-This is the "really complicated AI platform" part, and it's the piece we've deliberately designed to be **best-in-industry quality**, because a risk-control product lives or dies on whether it *misses* things. The design is a **multi-agent orchestrator over domain-scoped specialist agents**, each of which does **hybrid agentic search** — semantic retrieval for recall, then agentic file-reading for precision and real citations.
+**Inspiration: Anthropic's warm-minimal aesthetic** — cream rather than white, near-black rather than pure black, a single warm accent used sparingly, serif display type against a clean sans UI, and elevation built from color contrast instead of drop shadows.
 
-### 6.1 The topology: orchestrator → domain sub-agents
+> **Inspiration, not imitation.** We're borrowing the *approach* — warm neutrals, editorial typography, restraint — to build our own identity. We don't copy Anthropic's logo, wordmark, or brand assets, and their display faces (Copernicus, Styrene) are licensed and not ours to use. The substitutes below are the actual picks.
 
-- **A master orchestrator** decomposes a task (e.g. "Run Development Review") and dispatches to the domain sub-agents it needs, then synthesizes and verifies their findings into one coherent result (F10).
-- **Domain-scoped sub-agents** are the specialists. Each one is scoped to a single corpus — *Coquitlam council reports*, *Vancouver council reports*, *BC Building Code*, *a city's DCC/ACC fee schedules*, etc. — with a **domain system prompt** encoding how that jurisdiction actually works (e.g. Coquitlam ACC rules, in-stream protection, the OCP→Metro Van servicing cascade, "never mix historical and current rates").
-- A "sub-agent" is **not** a persistent model process living in a folder. It is a *scoped invocation*: `corpus + tool-scope + domain prompt`, spun up on demand by the orchestrator. This is what lets it scale to many client firms without N×M idle processes.
-- **Scoping is also a performance and reliability mechanism.** Because each sub-agent only ever searches its own slice, one city's corpus growing to tens of thousands of pages never slows another city's query, and findings can't bleed across domains.
+### 7.1 Why this direction
 
-### 6.2 Hybrid search inside each sub-agent (recall + precision)
+Nearly every B2B SaaS product defaults to cool gray on pure white. A warm cream canvas reads as considered and calm rather than clinical, and it costs nothing to implement. The serif display face is what keeps it from looking like every other AI tool — it signals editorial care, which matters for a product whose output people are meant to trust.
 
-Each sub-agent is given retrieval **tools** and drives its own search loop — the index does *not* answer on its own:
+### 7.2 Tokens
 
-- **Semantic search (recall):** a pgvector index over the sub-agent's corpus, matching on *meaning*, so a document that uses different wording than the agent would have grepped for still surfaces. This is the safety net against the silent-miss failure mode — e.g. finding a watercourse-protection DPA's riparian buffer when the agent only knew to look for "setback."
-- **Keyword / grep (precision):** exact-string search for bylaw numbers, fee codes, defined terms.
-- **Read the real files (provenance):** the agent opens the actual document text to verify a candidate really says what's needed, discard false positives, spot superseded content, and cite the **exact page/section**.
-- **All tools are uncapped and iterative** — the agent keeps pulling on any of them until it's confident. There is no fixed "top-k" that caps what it can see; semantic retrieval simply makes sure the right document is *reachable* so the agent isn't searching under the streetlight while the answer sits in the dark.
+Define these once in `packages/ui` as CSS custom properties, and map them into `tailwind.config.ts` so components never hardcode a hex value.
 
-**Why both, not one:** semantic-only gives approximate, context-stripped chunks (weak citations); agentic-grep-only silently misses anything worded unexpectedly (weak recall). Combined: the index guarantees the right files are *found*, the agent guarantees they're *read, verified, and cited*.
+```css
+:root {
+  /* Surfaces — warm, deliberately not pure white */
+  --canvas:          #faf9f5;   /* page background */
+  --surface-soft:    #f5f0e8;   /* subtle raised areas, table stripes */
+  --surface-card:    #efe9de;   /* cards, panels */
 
-### 6.3 The corpora and the index lifecycle
+  /* Text — near-black, never #000 */
+  --ink:             #141413;   /* headlines */
+  --body-strong:     #252523;
+  --body:            #3d3d3a;   /* default body copy */
+  --muted:           #6c6a64;   /* secondary text, labels */
+  --muted-soft:      #8e8b82;   /* captions, timestamps, placeholders */
 
-- **Two corpus families:** (a) curated municipal sources (Vancouver + Coquitlam for the pilot), organized per jurisdiction × source-type; and (b) each firm's **private** project documents. Private and municipal data are **tenant-scoped and never mixed across customers** (F1 + §7).
-- **Files are the source of truth; the index is derived.** Source documents live in a git-backed repo per corpus. This gives real-file citations, and — because ingestion is event-driven — Kevin's **freshness indicator** ("updated today / last week") and **change detection** ("what moved since last week" = a diff) nearly for free.
-- **Indexing is incremental, not a rebuild.** A new council meeting → chunk *that* document → embed only its chunks → insert. Existing embeddings are untouched; cost per meeting is trivial. A **full re-embed** happens only in two rare, batchable cases: upgrading the embedding model, or changing the chunking strategy.
-- **Every chunk carries metadata** — jurisdiction, document type, effective date, and current-vs-superseded status — so the "never mix historical and current rates" rule is enforced by filtering on effective-date at query time. Old rate schedules are **marked superseded, never deleted** (the history is needed).
+  /* Accent — the signature. Used sparingly: primary CTAs and callouts only. */
+  --accent:          #cc785c;
+  --accent-active:   #a9583e;
+  --accent-disabled: #e6dfd8;
 
-### 6.4 Trust, verification, and the non-negotiables
+  /* Borders — hairlines, low contrast */
+  --hairline:        #e6dfd8;
+  --hairline-soft:   #ebe6df;
 
-- **Citations are a first-class output, not an afterthought.** Use Claude's native citation support so every extracted fact carries `{source_document, page/section, char_range}`. This directly implements F14 and lets the UI render "Verified fact / Calculated / Tribunus assessment / Requires confirmation" with real provenance.
-- **Every workflow has a strict I/O contract.** Defined input, structured JSON output (validated against a schema), evidence requirements, and an **independent verification pass** that rejects unsupported findings (F10 / P4) — the guard against confident hallucination.
-- **Deterministic calculators are NOT the LLM.** FSR, fee totals, unit/area charges, dedications, dates (F8) are plain TypeScript with unit tests, each exposing its formula and inputs. The LLM may *decide* a calculator applies; it never does the math.
-- **Human-in-the-loop is a real workflow state.** A result sits in `pending_review` showing "Analysis under Tribunus review" until an analyst approves it in the console (F15) — mandatory for the pilot and the source of the eval data that lets us automate later.
+  /* Status */
+  --success:         #5db872;
+  --warning:         #d4a017;
+  --error:           #c64545;
+  --info:            #5db8a6;
+}
 
-### 6.5 Orchestration mechanics
+/* Dark mode — warm dark, not blue-black */
+:root[data-theme="dark"] {
+  --canvas:       #181715;
+  --surface-soft: #1f1e1b;
+  --surface-card: #252320;
+  --ink:          #faf9f5;
+  --body:         #e8e5dd;
+  --muted:        #a8a49a;
+  --hairline:     #34322d;
+}
+```
 
-For the MVP, the orchestrator and sub-agents run **in-repo as TypeScript**, via the Anthropic SDK's agentic tool-loop with the retrieval tools above. Long-running invocations (Run Development Review, Project Watch sweeps) execute as **Inngest steps** rather than inside a request, so they get durability, retries, and resumability for free. Because "agents that grep and read files in a corpus" is exactly what file-scoped agent runtimes do out of the box, most of the sub-agent plumbing is configuration, not infrastructure.
+### 7.3 Typography
 
-If orchestration outgrows this — genuinely long multi-day workflows, complex fan-out/fan-in, or heavy parsing that wants Python (§3.1) — we graduate the orchestrator to a dedicated workflow engine (Temporal) or split out a service, **without changing the feature slices**, because they depend only on the workflow-registry contract (§4).
-
----
-
-## 7. Multi-tenancy & data model (from day one)
-
-- **Every tenant-owned row carries `firm_id`.** Enforce isolation with **Postgres Row-Level Security**, not just app-layer `WHERE` clauses — defense in depth so one firm can never see another's data.
-- **Core shared entities** (in `packages/contracts` + `db`): `firm`, `user`, `membership(role)`, `project`, `document(version)`, `finding`, `assumption`, `risk`, `source`, `citation`, `analysis_run`. Feature-specific tables extend these; they don't fork them.
-- **Encryption in transit and at rest**, audit logs, data deletion, project-level permissions — baseline security from day one; the full feature-level security/audit console is deferred (see [deferred_feature_list.md](deferred_feature_list.md)).
-
----
-
-## 8. MVP now → many clients later (the scale path)
-
-Nothing here needs re-architecting to scale; each piece has a known next step:
-
-| Concern | MVP | At scale |
+| Role | Font | Notes |
 | --- | --- | --- |
-| Compute | Vercel (web + workflows), no containers to operate | Dedicated compute for AI workloads (containers on ECS/Fargate) once agent runs dominate cost or exceed function limits |
-| Database | One managed Supabase Postgres | Read replicas; connection pooling (Supavisor/PgBouncer); partition big tables by `firm_id`; self-host or move to RDS if we outgrow the managed tier |
-| Retrieval index | pgvector in Postgres, scoped per corpus | Dedicated vector DB (Qdrant/Turbopuffer) *only if* recall/latency demands it; sub-agent scoping already keeps per-corpus queries fast as the dataset grows |
-| Agentic search cost/latency | Async workflows (Run Development Review) absorb multi-hop search fine | Cache municipal corpora aggressively; reserve full agentic sweeps for async, use tighter retrieval for interactive surfaces |
-| Jobs | Inngest (durable steps, scheduling, retries) | Same, at higher volume; Temporal if orchestration becomes genuinely multi-day and stateful |
-| Doc parsing | Claude native PDF + hosted parsing API | Narrow Python parsing service if accuracy/cost demands it (§3.1) |
-| Tenancy | Shared DB + Supabase RLS | Shared DB + RLS still fine for hundreds of firms; isolate a whale onto its own schema/DB if required |
-| LLM cost | Opus for hard steps, Sonnet for volume, prompt caching on the big municipal context | Batch API for monitoring sweeps; cache municipal corpora aggressively |
+| **Display / headings** | **Newsreader** (or EB Garamond / Source Serif 4) | Serif, weight 400. Apply **negative letter-spacing** — `-0.02em` at large sizes, easing to `-0.01em` by 28px. Without it the face reads loose and generic. |
+| **Body / UI** | **Inter** | Humanist sans, 400–500. All UI labels, navigation, tables, forms. |
+| **Code / data** | **JetBrains Mono** | 14px, line-height 1.6. Also good for figures in dense tables. |
 
-The modular-monolith boundary is the escape hatch: if one feature (say Project Watch's monitoring) genuinely needs to be its own service later, it already *is* a self-contained slice with a contract — you extract it without a rewrite.
+Type scale: `64 / 48 / 36 / 28` display · `16` body · `14` small · `13` caption.
+
+### 7.4 Layout and form
+
+- **Spacing:** 4px base unit — `4, 8, 12, 16, 24, 32, 48, 96`. Section vertical rhythm is generous (64–96px); cards are 24–32px internally.
+- **Radius:** `4` xs · `6` sm · `8` md (buttons, inputs) · `12` lg (cards) · `16` xl (hero containers) · `9999` pill (badges).
+- **Elevation via contrast, not shadow.** Separate surfaces with the cream ramp and hairline borders. Reserve a soft shadow for hover/active states only.
+- **Accent discipline.** The coral is voltage, not decoration — primary CTAs and the occasional full-bleed callout. If more than one accent element is visible in a viewport, question it.
+- **Density.** Data-heavy screens use the small/caption sizes and tighter spacing; marketing and empty states get the generous rhythm. Don't mix the two rhythms on one screen.
+
+### 7.5 Practical notes
+
+- Build every screen **theme-aware from the start**. Retrofitting dark mode is far more expensive than doing it in the tokens up front.
+- Charts and data visualizations should pull from the same token set, not invent their own palette.
+- Never hardcode a hex outside `packages/ui`. If a component needs a color that isn't a token, that's a signal the token set needs one — add it there.
 
 ---
 
-## 9. The developer workflow that keeps conflicts near zero
+## 8. AI layer conventions
+
+General rules for any AI-backed feature, regardless of what it does.
+
+- **Structured output, always.** Every workflow declares a zod input and output schema and validates against it. Free-form text is a UI concern, never an interface between components.
+- **Citations are a first-class output.** Any claim derived from a source document carries `{source, location, retrieved_at}`. Use the provider's native citation support rather than asking the model to format references itself.
+- **Deterministic work is NOT the LLM.** Arithmetic, date math, unit conversion, and anything with a correct answer are plain TypeScript with unit tests, each exposing its formula and inputs. The model may *decide* a calculation applies; it never performs it.
+- **Retrieval is a tool the agent calls, not a pipeline that answers.** Semantic search for recall, keyword search for precision, and reading the real source for provenance. Let the agent iterate across all three rather than capping it at a fixed top-k.
+- **Long runs are jobs, not requests.** Anything multi-step or slow executes as durable Inngest steps so it survives restarts and gets retries for free.
+- **Verification passes are cheap insurance.** For anything a user will act on, a second pass that rejects unsupported claims is the main guard against confident hallucination.
+- **Human-in-the-loop is a real state, not a TODO.** If output needs review, `pending_review` is a first-class status in the data model with a UI that says so.
+- **Model IDs live in the gateway.** One file. Never scattered through features.
+
+---
+
+## 9. Multi-tenancy & security
+
+Build these in from day one — retrofitting tenancy is a rewrite.
+
+- **Every tenant-owned row carries a tenant/org id**, and isolation is enforced with **Postgres row-level security**, not just application-layer `WHERE` clauses. Defense in depth.
+- **Core shared entities** live in `packages/contracts` + `packages/db`; feature tables extend them rather than forking them.
+- **Encryption in transit and at rest**, audit logging, data deletion, and resource-level permissions are baseline, not features.
+- **Never mix tenants' data in a shared index.** Scope retrieval per tenant at the query level.
+
+---
+
+## 10. Scale path
+
+Nothing here needs re-architecting to grow; each piece has a known next step.
+
+| Concern | Default | At scale |
+| --- | --- | --- |
+| Compute | Vercel, no containers to operate | Dedicated compute for heavy workloads once they exceed function limits or dominate cost |
+| Database | One managed Supabase Postgres | Read replicas; connection pooling (Supavisor/PgBouncer); partition large tables by tenant |
+| Retrieval | pgvector in Postgres | Dedicated vector DB *only if* recall or latency measurably demands it |
+| Jobs | Inngest | Same at higher volume; Temporal for genuinely long-lived stateful workflows |
+| Tenancy | Shared DB + RLS | Still fine for hundreds of tenants; isolate a whale onto its own schema/DB if required |
+| LLM cost | Larger model for hard steps, smaller for volume; prompt caching | Batch API for bulk work; cache shared context aggressively |
+
+The modular boundary is the escape hatch: if one feature genuinely needs to be its own service later, it already *is* a self-contained slice with a contract — extract it without a rewrite.
+
+---
+
+## 11. Developer workflow
 
 1. **One feature = one folder = one branch = one owner** (CODEOWNERS).
 2. **Never edit a central list** — routes, nav, jobs, and workflows self-register.
 3. **Migrations are append-only and timestamped** — never edit an existing migration; add a new one.
-4. **`packages/contracts` changes are rare, reviewed, and announced** — it's the one shared surface, so treat changes to it as an API change.
-5. **Path-scoped CI** — Turborepo runs only the affected feature's build/tests, so PRs stay fast and independent.
+4. **`packages/contracts` changes are rare, reviewed, and announced** — treat them as API changes.
+5. **Path-scoped CI** — only the affected slice's build and tests run, so PRs stay fast and independent.
 6. **Cross-feature needs go through events or contracts**, never direct imports of another feature's internals.
-
-Follow these six rules and two developers shipping two complex features on the same day merge cleanly.
-
----
-
-## 10. Deferred (don't build during MVP)
-
-Consistent with [deferred_feature_list.md](deferred_feature_list.md) and the codex MVP sprint notes: no automated municipality-wide scraping, no live GIS/parcel mapping engine, no automated DCC/CAC calculator sweep, no council-video transcription, no CAD/BIM interpretation, no mobile app. Curate municipal + precedent data manually for the pilot; the adapters and ingestion pipeline (F9) are slices we add later without disturbing anything else.
+7. **Design tokens are the only source of color and type** — no hardcoded values outside `packages/ui`.
 
 ---
 
 ## Sources
 
-Architecture and stack research (current as of August 2026):
+Research current as of August 2026.
 
-**AI-agent-friendly stack consensus** (the basis for the §3 revision):
+**AI-agent-friendly stack consensus:**
 
 - [Tech Stack for Vibe Coding Modern Applications (KDnuggets)](https://www.kdnuggets.com/tech-stack-for-vibe-coding-modern-applications)
 - [The Best SaaS Stack in 2026: Build Production Apps Fast (MakerKit)](https://makerkit.dev/blog/saas/saas-stack-2026)
 - [The Best Tech Stack for Vibe Coding Your First App (Mukund Mohan)](https://mukundmohan.blog/2025/11/07/the-best-tech-stack-for-vibe-coding-your-first-app/)
 - [The Perfect Vibe Coding Tech Stack 2026 (Context Studios)](https://www.contextstudios.ai/blog/the-perfect-vibe-coding-tech-stack-2026-10-tools-every-app-needs)
+
+**Design language:**
+
+- [Claude/Anthropic design tokens — awesome-design-md (VoltAgent)](https://github.com/VoltAgent/awesome-design-md/blob/main/design-md/claude/DESIGN.md)
+- [Styrene in use: Anthropic (Type.Today)](https://type.today/en/journal/anthropic)
+- [Anthropic — Geist (brand identity work)](https://geist.co/work/anthropic)
+- [Claude brand color palette (Mobbin)](https://mobbin.com/colors/brand/claude)
 
 **Architecture:**
 

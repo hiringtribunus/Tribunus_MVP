@@ -58,7 +58,7 @@ This is the rare case where "why now" is not hand-waving:
 
 - The buyer set is **narrow and concentrated.** UDI Pacific has 850+ *corporate members* but that spans the whole ecosystem (planners, lawyers, engineers, lenders); the actual *developer* buyer count is a subset, and BC's market is characterized as "a relatively small group of developers responsible for the bulk" of projects. Your beachhead (large Metro Vancouver developers) is realistically **dozens to ~100 high-value accounts.**
 - That cuts both ways: it's a **small TAM** for a BC-only product, but it's also **high-ACV and reachable** — you can name every logo, and enterprise pricing against a multi-million-dollar soft-cost line is defensible. A concentrated market is easier to sell into and easier to cap out of.
-- **Venture-scale therefore depends on geographic expansion.** The modular, jurisdiction-scoped architecture (per tech_stack.md) is explicitly built for this — add a municipality as a data slice. The BC pilot is the proof; other Canadian metros with the same delay pathology (Toronto especially) are the scale story. As a BC-only business it's a viable, profitable niche; as a venture bet it needs the expansion thesis to be credible.
+- **Venture-scale therefore depends on geographic expansion.** The modular, jurisdiction-scoped architecture (per [ai_architecture.md](ai_architecture.md)) is explicitly built for this — add a municipality as a data slice. The BC pilot is the proof; other Canadian metros with the same delay pathology (Toronto especially) are the scale story. As a BC-only business it's a viable, profitable niche; as a venture bet it needs the expansion thesis to be credible.
 
 ## 5. Competition — funded category, local white space, human incumbent
 
