@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tribunus</title>
+<style>
+:root{
+  color-scheme: light;
+  --bg:#ffffff;
+  --surface:#ffffff;
+  --surface-2:#fafafa;
+  --ink:#0a0a0a;
+  --ink-2:#3f3f46;
+  --muted:#71717a;
+  --faint:#a1a1aa;
+  --line:#e8e8ea;
+  --line-strong:#d4d4d8;
+  --accent:#593cfb;
+  --accent-soft:#f5f3ff;
+  --accent-line:#ded5ff;
+  --shadow:0 1px 2px rgba(10,10,10,.05);
+  --radius:12px;
+  --maxw:1240px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.88);backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:var(--maxw);margin:0 auto;padding:0 28px;display:flex;align-items:center;gap:26px;height:52px}
+.brand{font-weight:650;letter-spacing:-.015em;font-size:15px;margin-right:6px}
+.tabs{display:flex;gap:22px;align-items:center;height:100%}
+.tab{background:none;border:0;padding:0;height:100%;font:inherit;font-size:13px;color:var(--muted);cursor:pointer;border-bottom:1.5px solid transparent;letter-spacing:-.005em}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--ink);border-bottom-color:var(--ink);font-weight:550}
+
+/* layout */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px 110px}
+.panel{display:none}
+.panel.on{display:block}
+h1{font-size:34px;line-height:1.15;letter-spacing:-.026em;margin:0;font-weight:670}
+h2{font-size:20px;line-height:1.25;letter-spacing:-.02em;margin:0;font-weight:640}
+h3{font-size:13px;margin:0;font-weight:640;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.head{padding:54px 0 34px}
+.rule{border-top:1px solid var(--line)}
+
+/* ---------- data engine ---------- */
+.engine{padding:8px 0 0}
+#engineSvg{width:100%;height:auto;display:block}
+.spoke{stroke:var(--line-strong);stroke-width:1.25;fill:none;transition:stroke .15s}
+.spoke.hot{stroke:var(--accent);stroke-width:2}
+.dot{fill:#fff;stroke:var(--line-strong);stroke-width:1.25;transition:all .15s}
+.dot.hot{stroke:var(--accent);fill:var(--accent)}
+.cat{cursor:default}
+.cat-name{font-size:13px;font-weight:550;fill:var(--ink);letter-spacing:-.01em}
+.cat-n{font-size:11.5px;fill:var(--faint)}
+.cat.hot .cat-name{fill:var(--accent)}
+.cat.hot .cat-n{fill:var(--accent)}
+.hub-ring{fill:#fff;stroke:var(--ink);stroke-width:1.5}
+.hub-t1{font-size:15px;font-weight:640;fill:var(--ink);letter-spacing:-.015em}
+.hub-t2{font-size:26px;font-weight:680;fill:var(--ink);letter-spacing:-.03em}
+.hub-t3{font-size:11.5px;fill:var(--muted)}
+
+.inv{display:grid;grid-template-columns:repeat(3,1fr);gap:0 26px;padding:6px 0 0}
+.inv-col{display:flex;flex-direction:column;gap:26px}
+.grp{border-top:1px solid var(--line);padding-top:13px;transition:border-color .15s}
+.grp.hot{border-top-color:var(--accent)}
+.grp-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}
+.grp-h b{font-size:13px;font-weight:600;letter-spacing:-.01em}
+.grp.hot .grp-h b{color:var(--accent)}
+.grp-h i{font-style:normal;font-size:11.5px;color:var(--faint);font-variant-numeric:tabular-nums}
+.grp ul{margin:0;padding:0;list-style:none}
+.grp li{font-size:12.5px;color:var(--ink-2);line-height:1.5;padding:1.5px 0}
+
+/* ---------- thesis ---------- */
+.thesis{padding:54px 0 0;max-width:900px}
+.thesis .big{font-size:29px;line-height:1.3;letter-spacing:-.024em;font-weight:640;margin:0 0 26px}
+.thesis .big em{font-style:normal;color:var(--accent)}
+.thesis p{color:var(--ink-2);max-width:74ch;margin:0 0 16px;font-size:15.5px}
+.thesis .deep{border-left:2px solid var(--accent);padding-left:16px;color:var(--ink-2);margin:26px 0 0;font-size:15px}
+
+/* ---------- mockup ---------- */
+.mock-wrap{padding:52px 0 0}
+.app{border:1px solid var(--line-strong);border-radius:14px;overflow:hidden;box-shadow:0 4px 24px rgba(10,10,10,.06);background:#fff}
+.app-bar{height:38px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 14px;gap:8px;background:var(--surface-2)}
+.app-bar i{width:9px;height:9px;border-radius:50%;background:var(--line-strong);display:block}
+.app-bar span{font-size:11.5px;color:var(--faint);margin-left:10px}
+.app-body{display:grid;grid-template-columns:202px 1fr;min-height:430px}
+.rail{border-right:1px solid var(--line);padding:12px 8px;background:#fff}
+.rail-proj{padding:4px 9px 12px;border-bottom:1px solid var(--line);margin-bottom:9px}
+.rail-proj b{display:block;font-size:12.5px;font-weight:600;letter-spacing:-.01em}
+.rail-proj span{font-size:11px;color:var(--muted)}
+.rl{display:flex;align-items:center;gap:9px;width:100%;padding:6px 9px;border:0;background:none;border-radius:6px;font:inherit;font-size:12.5px;color:var(--ink-2);text-align:left;margin-bottom:1px;cursor:pointer}
+.rl:hover{background:var(--surface-2)}
+.rl.on{background:var(--surface-2);color:var(--ink);font-weight:550}
+.rl em{flex:1;font-style:normal;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rl svg{width:15px;height:15px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;color:var(--faint)}
+.rl:hover svg{color:var(--muted)}
+.rl.on svg{color:var(--accent)}
+.rl u{text-decoration:none;font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}
+.rl.on u{color:var(--accent)}
+.rl.sub{margin-left:16px;width:calc(100% - 16px);padding-left:10px;border-left:1px solid var(--line);border-radius:0 6px 6px 0}
+.rl.sub svg{width:13px;height:13px}
+.main{padding:18px 20px 22px;min-width:0}
+.main-top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}
+.main-top h4{margin:0;font-size:17px;font-weight:640;letter-spacing:-.018em}
+.btn{font-size:12px;border:1px solid var(--line-strong);background:#fff;border-radius:7px;padding:5px 10px;color:var(--ink-2);cursor:default}
+.btn.p{background:var(--ink);border-color:var(--ink);color:#fff}
+.dep{width:100%;border-collapse:collapse;font-size:12.5px}
+.dep th{text-align:left;font-weight:400;color:var(--muted);font-size:11.5px;padding:0 10px 7px 0;border-bottom:1px solid var(--line)}
+.dep td{padding:9px 10px 9px 0;border-bottom:1px solid var(--line);vertical-align:middle;color:var(--ink-2)}
+.dep tr:last-child td{border-bottom:0}
+.dep th:first-child,.dep td:first-child{padding-left:9px}
+.dep tbody tr{cursor:pointer}
+.dep tbody tr:hover{background:var(--surface-2)}
+.dep tbody tr.sel{background:var(--accent-soft)}
+.dep tbody tr.sel td:first-child{box-shadow:inset 2.5px 0 0 var(--accent)}
+.dep tbody tr.sel .el{color:var(--accent)}
+.case-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:22px 0 0}
+.case-h b{font-size:12px;font-weight:640;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.case-h span{font-size:13.5px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+.case-h i{font-style:normal;margin-left:auto;font-size:11.5px;color:var(--accent);border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:999px;padding:2px 9px}
+.case-h i.flat{color:var(--muted);border-color:var(--line-strong);background:var(--surface-2)}
+.case{margin-top:9px}
+.nocase{margin-top:9px;border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.dep .el{color:var(--ink);font-weight:550}
+.dep .num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.dep .src{color:var(--faint);font-size:11.5px}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line-strong);color:var(--ink-2);white-space:nowrap}
+.pill.rez{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent)}
+.act{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:550;white-space:nowrap}
+.act:before{content:"";width:5px;height:5px;border-radius:50%;background:var(--line-strong)}
+.act.push{color:var(--accent)}
+.act.push:before{background:var(--accent)}
+.act.revise:before{background:#ca8a04}
+.act.confirm:before{background:#71717a}
+.act.deleg:before{background:#d4d4d8}
+
+/* approval case */
+.case{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:22px}
+.case > div{padding:16px 18px}
+.case > div + div{border-left:1px solid var(--line)}
+.case h5{margin:0 0 10px;font-size:12px;font-weight:640;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.ev{display:flex;gap:14px;padding:7px 0;border-top:1px solid var(--line)}
+.ev:first-of-type{border-top:0;padding-top:0}
+.ev b{font-size:12.5px;font-weight:600;white-space:nowrap;min-width:74px}
+.ev b.s{color:var(--accent)}
+.ev b.w{color:#b42318}
+.ev p{margin:0;font-size:12.5px;color:var(--ink-2);line-height:1.45}
+
+/* flow */
+.flow{display:flex;flex-wrap:wrap;gap:0;align-items:center;margin-top:44px;padding-top:26px;border-top:1px solid var(--line)}
+.flow span{font-size:12.5px;border:1px solid var(--line);border-radius:8px;padding:6px 11px;color:var(--ink-2);background:#fff;white-space:nowrap}
+.flow span.k{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent);font-weight:550}
+.flow em{font-style:normal;color:var(--faint);padding:0 8px;font-size:13px}
+
+/* ---------- user workflow ---------- */
+.uw{padding:64px 0 0;border-top:1px solid var(--line);margin-top:56px}
+.uw > h2{margin:0 0 26px}
+.uw h3{margin:38px 0 12px}
+.uw p{margin:0}
+
+.uw-def{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ub{border:1px solid var(--line-strong);border-radius:8px;padding:7px 13px;font-size:13.5px;font-weight:550;background:#fff}
+.ub.k{border-color:var(--accent);background:var(--accent);color:#fff}
+.uw-def em{font-style:normal;color:var(--faint);font-size:13px}
+.uw-note{color:var(--muted);font-size:13.5px;margin-top:12px;max-width:74ch}
+
+.uw-src{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.uw-src > div{border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;background:#fff}
+.uw-src b{display:block;font-size:13px;font-weight:600;letter-spacing:-.01em;margin-bottom:3px}
+.uw-src i{font-style:normal;display:block;font-size:11px;color:var(--accent);font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-bottom:7px}
+.uw-src span{font-size:12.5px;color:var(--muted);line-height:1.45}
+.uw-merge{position:relative;height:32px}
+.uw-merge:before{content:"";position:absolute;left:16.6%;right:16.6%;top:15px;height:1.25px;background:var(--line-strong)}
+.uw-merge i{position:absolute;top:0;height:15px;width:1.25px;background:var(--line-strong)}
+.uw-merge i:nth-of-type(1){left:16.6%}
+.uw-merge i:nth-of-type(2){left:50%}
+.uw-merge i:nth-of-type(3){left:83.4%}
+.uw-merge b{position:absolute;left:50%;top:15px;width:1.5px;height:11px;background:var(--accent);transform:translateX(-50%)}
+.uw-merge b:after{content:"";position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);border-left:4.5px solid transparent;border-right:4.5px solid transparent;border-top:6px solid var(--accent)}
+.uw-stack{border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:9px;padding:9px 16px;text-align:center;font-size:13px;font-weight:600;color:var(--accent);max-width:300px;margin:0 auto}
+
+.uw-types{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tband{border:1px solid var(--line);border-radius:var(--radius);padding:13px 15px;background:#fff;border-left-width:2.5px;border-left-color:var(--line-strong)}
+.tband.hard{border-left-color:var(--ink)}
+.tband.neg{border-left-color:var(--accent)}
+.tband.unk{border-left-style:dashed}
+.tband u{text-decoration:none;display:block;font-size:11px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+.tband.hard u{color:var(--ink)}
+.tband.neg u{color:var(--accent)}
+.tband span{display:block;font-size:12.5px;color:var(--ink-2);padding:2.5px 0 2.5px 13px;position:relative}
+.tband span:before{content:"";position:absolute;left:1px;top:10px;width:4px;height:4px;border-radius:50%;background:var(--line-strong)}
+.tband em{font-style:normal;display:block;font-size:11.5px;color:var(--faint);margin-top:8px}
+
+.uw-life{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+.st{flex:1;min-width:120px;border:1px solid var(--line);border-left:0;padding:12px 14px;background:#fff}
+.st:first-child{border-left:1px solid var(--line);border-radius:var(--radius) 0 0 var(--radius)}
+.st:last-child{border-radius:0 var(--radius) var(--radius) 0}
+.st u{text-decoration:none;display:block;font-size:10.5px;color:var(--faint);font-weight:650;letter-spacing:.08em}
+.st b{display:block;font-size:13px;font-weight:600;letter-spacing:-.01em;margin-top:3px}
+.st span{display:block;font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+.st.k{background:var(--accent-soft);border-color:var(--accent-line)}
+.st.k b,.st.k u{color:var(--accent)}
+.uw-pos{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.uw-pos > u{text-decoration:none;font-size:11.5px;color:var(--muted);margin-right:2px}
+.pos{font-size:12px;border:1px solid var(--line-strong);border-radius:999px;padding:3px 11px;display:inline-flex;align-items:center;gap:6px;background:#fff}
+.pos:before{content:"";width:5px;height:5px;border-radius:50%;background:var(--line-strong)}
+.pos.push{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent);font-weight:550}
+.pos.push:before{background:var(--accent)}
+.pos.revise:before{background:#ca8a04}
+.pos.confirm:before{background:#71717a}
+
+.uw-anat{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.uw-anat > div{padding:16px 18px}
+.uw-anat > div + div{border-left:1px solid var(--line);background:var(--surface-2)}
+.uw-anat h5{margin:0 0 11px;font-size:12px;font-weight:640;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.fld{display:flex;gap:14px;padding:6px 0;border-top:1px solid var(--line)}
+.fld:first-of-type{border-top:0;padding-top:0}
+.fld b{font-size:12.5px;font-weight:600;min-width:96px;flex:0 0 auto}
+.fld span{font-size:12.5px;color:var(--muted);line-height:1.45}
+@media (max-width:860px){ .uw-merge{display:none} .uw-src,.uw-types{grid-template-columns:1fr} .uw-anat{grid-template-columns:1fr} .uw-anat > div + div{border-left:0;border-top:1px solid var(--line)} }
+
+/* ---------- competitor map ---------- */
+.map{margin-top:6px;overflow-x:auto}
+.map-inner{min-width:900px}
+.ph-row{display:grid;grid-template-columns:212px repeat(7,1fr);gap:0;border-bottom:1px solid var(--line-strong);padding-bottom:9px;margin-bottom:6px}
+.ph{padding:0 8px;border-left:1px solid var(--line)}
+.ph:first-of-type{border-left:0}
+.ph u{text-decoration:none;display:block;font-size:10.5px;color:var(--faint);font-weight:650;letter-spacing:.08em}
+.ph b{display:block;font-size:12px;font-weight:600;letter-spacing:-.01em;line-height:1.25;margin-top:2px}
+.ph.key b{color:var(--accent)}
+.row{display:grid;grid-template-columns:212px repeat(7,1fr);gap:0;align-items:center;min-height:34px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row-lab{padding-right:12px;min-width:0}
+.row-lab b{display:block;font-size:13px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-lab span{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track{grid-column:2 / span 7;display:grid;grid-template-columns:repeat(7,1fr);align-items:center;height:100%;position:relative}
+.track:before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(to right,transparent,transparent calc(14.2857% - 1px),var(--line) calc(14.2857% - 1px),var(--line) 14.2857%);pointer-events:none}
+.bar{height:19px;border-radius:5px;background:var(--surface-2);border:1px solid var(--line-strong);margin:0 4px;position:relative;z-index:1}
+.bar.un{background:transparent;border-style:dashed}
+.bar.tb{background:var(--accent);border-color:var(--accent);height:23px}
+.bar.tb.peak{box-shadow:0 0 0 3px var(--accent-soft)}
+.grp-lab{display:flex;align-items:baseline;gap:10px;margin:32px 0 8px}
+.grp-lab b{font-size:13px;font-weight:640;letter-spacing:-.01em}
+.grp-lab span{font-size:12px;color:var(--muted)}
+.tb-row{background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:9px;padding:0 0 0 12px;margin:6px 0 2px;min-height:42px}
+.tb-row .row-lab b{color:var(--accent)}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:26px;padding-top:16px;border-top:1px solid var(--line)}
+.legend div{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+.legend i{width:22px;height:11px;border-radius:3px;display:block}
+.li-p{background:var(--surface-2);border:1px solid var(--line-strong)}
+.li-u{border:1px dashed var(--line-strong)}
+.li-t{background:var(--accent);border:1px solid var(--accent)}
+
+.gap{margin-top:38px;border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:var(--radius);padding:18px 20px;max-width:760px}
+.gap b{color:var(--accent);font-weight:640;font-size:13px;letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:6px}
+.gap p{margin:0;font-size:14.5px;color:var(--ink-2);line-height:1.5}
+
+@media (max-width:960px){
+  .inv{grid-template-columns:1fr 1fr}
+  .case{grid-template-columns:1fr}
+  .case > div + div{border-left:0;border-top:1px solid var(--line)}
+  .app-body{grid-template-columns:1fr}
+  .rail{display:none}
+}
+@media (max-width:640px){ .inv{grid-template-columns:1fr} h1{font-size:27px} .thesis .big{font-size:23px} }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">Tribunus</div>
+    <div class="tabs">
+      <button class="tab on" data-t="engine">Data Engine</button>
+      <button class="tab" data-t="product">Product</button>
+      <button class="tab" data-t="market">Market</button>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ============ 1. DATA ENGINE ============ -->
+  <section class="panel on" id="engine">
+    <div class="head"><h1>Data Engine</h1></div>
+    <div class="engine"><svg id="engineSvg" viewBox="0 0 1200 700" role="img" aria-label="Data sources converging into the Tribunus evidence layer"></svg></div>
+    <div class="inv" id="inv"></div>
+  </section>
+
+  <!-- ============ 2. PRODUCT ============ -->
+  <section class="panel" id="product">
+    <div class="thesis">
+      <p class="big">Tribunus turns a proposed development into an <em>evidence-backed municipal approval strategy</em>.</p>
+      <p>A developer enters a site and the development they want to build. Tribunus establishes the verified municipal baseline, identifies where the proposal departs from it, uses policy and actual decision history to assess what can credibly be pushed, and produces the most defensible pathway toward approval.</p>
+      <p class="deep">Developers create value by reducing uncertainty. Tribunus reduces the uncertainty between what they want to build and what the municipality may actually approve.</p>
+    </div>
+
+    <div class="mock-wrap">
+      <div class="app">
+        <div class="app-bar"><i></i><i></i><i></i><span>Marigold &amp; Litchfield — Coquitlam</span></div>
+        <div class="app-body">
+          <div class="rail">
+            <div class="rail-proj"><b>Marigold &amp; Litchfield</b><span>80 townhouse · Feasibility</span></div>
+            <button class="rl"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16"/><path d="M15 21V11h2a2 2 0 0 1 2 2v8"/><path d="M9 7h2"/><path d="M9 11h2"/><path d="M9 15h2"/></svg><em>Projects</em></button>
+            <button class="rl"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><em>Overview</em></button>
+            <button class="rl"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><em>Site &amp; Proposal</em></button>
+            <button class="rl on"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg><em>Departures</em><u>6</u></button>
+            <button class="rl sub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg><em>Approval cases</em><u>4</u></button>
+            <button class="rl"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg><em>Pathway &amp; Workflow</em></button>
+            <button class="rl"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v5h5"/><path d="M9 13h6"/><path d="M9 17h6"/></svg><em>Documents &amp; Evidence</em></button>
+          </div>
+          <div class="main">
+            <div class="main-top">
+              <h4>Departures</h4>
+              <div><button class="btn">Export</button> <button class="btn p">Run Review</button></div>
+            </div>
+            <table class="dep">
+              <thead><tr><th>Element</th><th>Proposed</th><th>Required</th><th>Mechanism</th><th>Evidence</th><th>Decision</th></tr></thead>
+              <tbody id="depBody"></tbody>
+            </table>
+            <div id="caseWrap"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="uw">
+      <h2>User workflow</h2>
+
+      <div class="uw-def">
+        <span class="ub">Proposal</span><em>against</em>
+        <span class="ub">Verified baseline</span><em>&rarr;</em>
+        <span class="ub k">Departure</span>
+      </div>
+      <p class="uw-note">A departure is any gap between what the team proposes and what the rules require. Each one opens as a ticket that carries its own research, comparables, owner and decision.</p>
+
+      <h3>Where departures come from</h3>
+      <div class="uw-src">
+        <div><i>Automatic</i><b>On review</b><span>Run Development Review compares the confirmed proposal to the baseline and raises every gap it finds.</span></div>
+        <div><i>Emergent</i><b>During research</b><span>Studying precedent or council history surfaces a constraint nobody had modelled.</span></div>
+        <div><i>Manual</i><b>By the team</b><span>Raised from experience, a consultant flag, or something the City said in a meeting.</span></div>
+      </div>
+      <div class="uw-merge"><i></i><i></i><i></i><b></b></div>
+      <div class="uw-stack">One departure register</div>
+
+      <h3>Types</h3>
+      <div class="uw-types">
+        <div class="tband hard"><u>Hard</u>
+          <span>Requires rezoning</span><span>Requires OCP or policy amendment</span><span>Conflicts with policy</span>
+          <em>Changes the approval path and the timeline.</em></div>
+        <div class="tband neg"><u>Negotiable</u>
+          <span>Discretionary or relaxable</span><span>Policy-aligned, still needs approval</span>
+          <em>Where an approval case is worth building.</em></div>
+        <div class="tband unk"><u>Unresolved</u>
+          <span>Dependent on missing information</span><span>Requires municipal confirmation</span>
+          <em>Cannot be argued until someone answers.</em></div>
+      </div>
+
+      <h3>Ticket lifecycle</h3>
+      <div class="uw-life">
+        <div class="st"><u>01</u><b>Raised</b><span>Automatically, in research, or by hand</span></div>
+        <div class="st"><u>02</u><b>Classified</b><span>Typed against the baseline clause</span></div>
+        <div class="st"><u>03</u><b>Assigned</b><span>An owner takes the question</span></div>
+        <div class="st k"><u>04</u><b>Approval case</b><span>Policy, precedent, comparables, weakness</span></div>
+        <div class="st"><u>05</u><b>Position</b><span>The team commits to a decision</span></div>
+        <div class="st"><u>06</u><b>Resolved</b><span>Revision, City answer, or closed out</span></div>
+      </div>
+      <div class="uw-pos"><u>Positions</u>
+        <span class="pos push">Push</span>
+        <span class="pos revise">Revise</span>
+        <span class="pos confirm">Confirm with City</span>
+        <span class="pos">Delegate</span>
+      </div>
+
+      <h3>Inside a departure</h3>
+      <div class="uw-anat">
+        <div>
+          <h5>The ticket</h5>
+          <div class="fld"><b>Element</b><span>What in the proposal departs</span></div>
+          <div class="fld"><b>Requirement</b><span>The rule, cited to clause and page</span></div>
+          <div class="fld"><b>Gap</b><span>Size and nature of the difference</span></div>
+          <div class="fld"><b>Mechanism</b><span>The approval it would need</span></div>
+          <div class="fld"><b>Owner</b><span>Who is carrying it</span></div>
+          <div class="fld"><b>Position</b><span>Push, revise, confirm, delegate</span></div>
+        </div>
+        <div>
+          <h5>Its approval case</h5>
+          <div class="fld"><b>Policy</b><span>What supports more than the base rule</span></div>
+          <div class="fld"><b>Precedent</b><span>Comparable projects and how they moved</span></div>
+          <div class="fld"><b>Staff</b><span>How staff have treated the same reasoning</span></div>
+          <div class="fld"><b>Weakness</b><span>What argues against it, kept visible</span></div>
+          <div class="fld"><b>Conditions</b><span>What comparable approvals had to accept</span></div>
+          <div class="fld"><b>Read</b><span>Calibrated language, never a probability</span></div>
+        </div>
+      </div>
+      <p class="uw-note">Departures carry an owner and a decision because that is what makes them actionable. They are a decision record, not a task tracker.</p>
+    </div>
+  </section>
+
+  <!-- ============ 3. MARKET ============ -->
+  <section class="panel" id="market">
+    <div class="head"><h1>Market</h1></div>
+    <div class="map"><div class="map-inner" id="mapInner"></div></div>
+    <div class="gap">
+      <b>The gap</b>
+      <p>Proven companies sell individual parts of the workflow. The least-proven section is the intelligence between early feasibility and municipal approval — what can be pushed, whether policy and precedent support it, and how to pursue approval.</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ---------------- tabs ---------------- */
+document.querySelectorAll('.tab').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on');});
+    document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    document.getElementById(b.dataset.t).classList.add('on');
+    window.scrollTo(0,0);
+  });
+});
+
+/* ---------------- data engine ---------------- */
+var CATS = [
+  {side:'L', name:'Municipal Land Use & Policy', items:['Official Community Plan (OCP) / ODP','Zoning Bylaw','Zoning Maps & Schedules','Area / Neighbourhood / Community Plans','Corridor Plans','Station-Area / TOA Plans','Development Permit Area Guidelines','Municipal Design Guidelines','Council-Adopted Planning Policies','Rezoning Policies','Rental Housing Policies','Affordable Housing Policies','Heritage Policies & Guidelines','Employment / Industrial Land Policies','Municipal Housing Strategy','Housing Needs Report','Development Approval Procedure Bylaw','Delegation Bylaw','Floodplain Bylaw','Tree Protection Bylaw','Stream / Watercourse Protection Bylaw','Municipal Heritage Register','Heritage Conservation Area Guidelines']},
+  {side:'L', name:'Development & Servicing', items:['Subdivision and Development Servicing Bylaw','Engineering Design Manual / Criteria','Stormwater Management Manual','Water Servicing Standards','Sanitary Sewer Servicing Standards','Drainage Servicing Standards','Transportation / Street Design Standards','Development Works / Frontage Improvements','Transportation Master Plan','Utility / Servicing Master Plans','Municipal Capital Plan','Area-Specific Servicing Plans']},
+  {side:'L', name:'Fees & Contributions', items:['Development Application Fee Schedule','Development Cost Charge (DCC) Bylaw','Development Cost Levy (DCL) Bylaw','Amenity Cost Charge (ACC) Bylaw','Community Amenity Contribution (CAC) Policy','Density Bonus Contribution Schedules','Utility / Connection Charge Bylaws','Regional District DCC Bylaws','Metro Vancouver DCC Bylaws','Charge Exemption / Waiver Bylaws','School Site Acquisition Charge','Development Charge (Instalments) Regulation','Parkland Dedication / Cash-in-Lieu']},
+  {side:'L', name:'Application Requirements', items:['Rezoning Application Guide','OCP Amendment Application Guide','Development Permit Application Guide','Development Variance Permit Guide','Subdivision Application Guide','Building Permit Application Guide','Development / Planning Bulletins','Planning Interpretation Bulletins','Engineering Submission Checklists']},
+  {side:'L', name:'Applications & Precedent', items:['Development Application Registry / Map','Rezoning Application Packages','OCP Amendment Packages','Development Permit Packages','Development Variance Permit Packages','Public Subdivision Records','Master Development Plan Packages','Consultation / Engagement Records','Status / Decision Registry','Issued Development Permit Records','Issued Building Permit Records','Archived Application Packages']},
+  {side:'L', name:'Council & Decision Intelligence', items:['Council Agenda Packages','Council Staff Reports','Council Minutes','Council Meeting Videos / Transcripts','Council Voting Records','Public Hearing Agenda Packages','Public Hearing Written Submissions','Public Hearing Minutes','Public Hearing Videos / Transcripts','Committee Agenda Packages','Committee Staff Reports','Committee Minutes','Development Permit Board Reports','Development Permit Board Minutes','Design Review Panel Reports','Design Review Panel Minutes','Planning Advisory Committee Reports','Planning Advisory Committee Minutes','Board of Variance Records','Rezoning Referral Reports','Rezoning Enactment Reports','Adopted Rezoning Bylaws','Conditions of Approval']},
+  {side:'R', name:'Provincial Planning & Housing', items:['Local Government Act','Vancouver Charter','Housing Supply Act','Housing Supply Regulation','Municipal Housing Target Orders','SSMUH Policy Manual & Site Standards','Transit-Oriented Area Regulations','Transit-Oriented Area Maps','TOA Policy Manual','Housing / Land-Use Implementation Manuals','Orders in Council affecting land use','Legislative Amendments affecting land use']},
+  {side:'R', name:'Regional Planning & Infrastructure', items:['Metro 2050 Regional Growth Strategy','Metro 2050 Maps','Metro Vancouver Regional Water Plans','Liquid Waste Management Plan','TransLink Transport 2050','TransLink Investment / Ten-Year Plans','TransLink GTFS Dataset','Provincial Highway Plans / Corridor Maps']},
+  {side:'R', name:'Parcel & Spatial Data', items:['Municipal GIS / Open Data Portal','ParcelMap BC Open Dataset','BC Data Catalogue / Geographic Warehouse']},
+  {side:'R', name:'Environmental & Physical Constraints', items:['Riparian Areas Protection Act','Riparian Areas Protection Regulation','Environmental Management Act','Contaminated Sites Regulation','Environmental Remediation Sites Dataset','Provincial Flood Hazard Maps','Freshwater Atlas / Water Resources Atlas','BC Conservation Data Centre Datasets','Agricultural Land Commission Act','Agricultural Land Reserve Map']},
+  {side:'R', name:'Historical / Change Intelligence', items:['Archived / Superseded Versions','Amendment Bylaws','Policy Amendments','Fee / Charge Amendments','Proposed Amendments','Effective Dates']}
+];
+
+(function drawEngine(){
+  var svg = document.getElementById('engineSvg');
+  var W=1200, H=700, cx=600, cy=350, R=96;
+  var L = CATS.filter(function(c){return c.side==='L';});
+  var Rt = CATS.filter(function(c){return c.side==='R';});
+  var total = CATS.reduce(function(a,c){return a+c.items.length;},0);
+  var ns='http://www.w3.org/2000/svg';
+  var parts=[];
+
+  function lay(list, isLeft){
+    var top=42, bot=H-42;
+    var step=(bot-top)/(list.length-1);
+    list.forEach(function(c,i){
+      var y = top + i*step;
+      var x = isLeft ? 300 : W-300;
+      var ax = isLeft ? x+14 : x-14;          // anchor where line starts
+      var ex = isLeft ? cx-R-6 : cx+R+6;      // hub edge
+      var midx = isLeft ? (ax+ex)/2 : (ax+ex)/2;
+      var id = c.name.replace(/[^a-z]/gi,'');
+      parts.push('<path class="spoke" data-k="'+id+'" d="M '+ax+' '+y+' C '+midx+' '+y+', '+midx+' '+cy+', '+ex+' '+cy+'"/>');
+      parts.push('<circle class="dot" data-k="'+id+'" cx="'+ax+'" cy="'+y+'" r="3.5"/>');
+      parts.push('<g class="cat" data-k="'+id+'">'
+        + '<text class="cat-name" x="'+(isLeft?x:x)+'" y="'+(y-3)+'" text-anchor="'+(isLeft?'end':'start')+'">'+c.name+'</text>'
+        + '<text class="cat-n" x="'+(isLeft?x:x)+'" y="'+(y+13)+'" text-anchor="'+(isLeft?'end':'start')+'">'+c.items.length+' sources</text>'
+        + '</g>');
+    });
+  }
+  lay(L,true); lay(Rt,false);
+
+  parts.push('<circle class="hub-ring" cx="'+cx+'" cy="'+cy+'" r="'+R+'"/>');
+  parts.push('<text class="hub-t1" x="'+cx+'" y="'+(cy-22)+'" text-anchor="middle">Evidence Layer</text>');
+  parts.push('<text class="hub-t2" x="'+cx+'" y="'+(cy+12)+'" text-anchor="middle">'+total+'</text>');
+  parts.push('<text class="hub-t3" x="'+cx+'" y="'+(cy+32)+'" text-anchor="middle">source types</text>');
+  parts.push('<text class="hub-t3" x="'+cx+'" y="'+(cy+56)+'" text-anchor="middle">Vancouver · Coquitlam</text>');
+
+  svg.innerHTML = parts.join('');
+
+  /* inventory columns */
+  var inv=document.getElementById('inv');
+  var cols=[[],[],[]];
+  CATS.forEach(function(c,i){ cols[i%3].push(c); });
+  inv.innerHTML = cols.map(function(col){
+    return '<div class="inv-col">' + col.map(function(c){
+      var id=c.name.replace(/[^a-z]/gi,'');
+      return '<div class="grp" data-k="'+id+'"><div class="grp-h"><b>'+c.name+'</b><i>'+c.items.length+'</i></div><ul>'
+        + c.items.map(function(t){return '<li>'+t+'</li>';}).join('') + '</ul></div>';
+    }).join('') + '</div>';
+  }).join('');
+
+  function hot(k,on){
+    document.querySelectorAll('[data-k="'+k+'"]').forEach(function(el){
+      el.classList.toggle('hot',on);
+    });
+  }
+  document.querySelectorAll('.grp, .cat').forEach(function(el){
+    el.addEventListener('mouseenter',function(){hot(el.dataset.k,true);});
+    el.addEventListener('mouseleave',function(){hot(el.dataset.k,false);});
+  });
+})();
+
+/* ---------------- departures mockup ---------------- */
+var DEPS=[
+ {el:"Floor space ratio",prop:"1.42",req:"1.20",mech:"Rezoning",key:true,
+  src:"Zoning Bylaw \u00a7402 p.88",act:"push",actLab:"Push",
+  read:"Strong policy \u00b7 moderate precedent",
+  ev:[["Policy","s","Neighbourhood plan designates the parcel transition-area, supporting up to 1.5 FSR where family units are provided."],
+      ["Precedent","s","3 comparable townhouse rezonings since 2023. Two approved at 1.40 and 1.48."],
+      ["Weakness","w","Both approvals required 25% three-bedroom units and a 6 m greenway dedication."],
+      ["Staff","","No recorded objection to density in this sub-area. Concerns centred on frontage treatment."]],
+  comps:[["1181 Austin","1.48 FSR \u00b7 approved 6\u20131 \u00b7 14 months \u00b7 family units, greenway"],
+         ["3300 Dewdney","1.40 FSR \u00b7 approved 7\u20130 \u00b7 11 months \u00b7 family units"],
+         ["822 Como Lake","1.55 FSR \u00b7 withdrawn after staff report \u00b7 massing, shadowing"]]},
+
+ {el:"Building height",prop:"4 storeys",req:"3 storeys",mech:"Rezoning",key:true,
+  src:"Zoning Bylaw \u00a7402 p.89",act:"push",actLab:"Push",
+  read:"Moderate precedent \u00b7 material staff risk",
+  ev:[["Policy","","Plan contemplates 4 storeys on arterial frontage. This parcel is interior."],
+      ["Precedent","s","2 of 4 comparable rezonings approved at 4 storeys since 2022."],
+      ["Weakness","w","Both approvals were arterial sites. The one interior-lot request was refused."],
+      ["Staff","w","Staff report on 3300 Dewdney flagged interior-lot height as a precedent concern."]],
+  comps:[["3300 Dewdney","4 storeys \u00b7 approved \u00b7 arterial frontage"],
+         ["1181 Austin","4 storeys \u00b7 approved \u00b7 arterial frontage"],
+         ["90 Blue Mountain","4 storeys \u00b7 refused \u00b7 interior lot, shadowing"]]},
+
+ {el:"Rear setback",prop:"2.5 m",req:"3.0 m",mech:"Discretionary",key:false,
+  src:"Zoning Bylaw \u00a71204.3 p.214",act:"push",actLab:"Push",
+  read:"Limited policy \u00b7 strong precedent",
+  ev:[["Policy","","No policy statement on rear setback relaxation. Fully discretionary."],
+      ["Precedent","s","5 variance permits granted in RT-2 since 2022. Median relaxation 0.6 m."],
+      ["Weakness","w","None granted where the rear lot line abuts single-family. This one does not."],
+      ["Staff","s","Routinely supported where a landscape buffer is provided."]],
+  comps:[["DVP-22-041","0.5 m relaxation \u00b7 approved \u00b7 landscape buffer"],
+         ["DVP-23-118","0.6 m relaxation \u00b7 approved \u00b7 landscape buffer"],
+         ["DVP-24-007","0.75 m relaxation \u00b7 refused \u00b7 abuts single-family"]]},
+
+ {el:"Parking ratio",prop:"0.9 / unit",req:"1.2 / unit",mech:"Relaxable \u2014 TOA",key:false,
+  src:"Bill 47 \u00b7 TOA Regulation",act:"confirm",actLab:"Confirm with City",
+  read:"Requires City confirmation",
+  ev:[["Policy","s","Bill 47 removes parking minimums within a designated transit-oriented area."],
+      ["Precedent","","Not yet tested locally at this ratio for townhouse form."],
+      ["Weakness","w","TOA boundary is 400 m. Site measures 415 m from the station centroid."],
+      ["Staff","","Measurement method for the boundary is unconfirmed. Ask before relying on it."]],
+  comps:[]},
+
+ {el:"Tree retention",prop:"6 of 14",req:"60%",mech:"Policy conflict",key:false,
+  src:"Tree Protection Bylaw \u00a77",act:"revise",actLab:"Revise",
+  read:"Policy conflict",
+  note:"No approval case is being built. Retention below 60% conflicts directly with the bylaw and no comparable approval sits below 50%. Cash-in-lieu has only been accepted for one or two trees. The site plan is being revised instead."},
+
+ {el:"ACC regime",prop:"Unconfirmed",req:"\u2014",mech:"Requires confirmation",key:false,
+  src:"ACC Bylaw \u00b7 adopted Jul 2025",act:"deleg",actLab:"Delegate",
+  read:"Insufficient evidence",
+  note:"No approval case yet. Whether this file falls under the new ACC bylaw or the prior CAC regime depends on the in-stream date, which is unresolved. Assigned to Development Services for confirmation before the fee stack can be relied on."}
+];
+
+(function departures(){
+  var body=document.getElementById("depBody");
+  var wrap=document.getElementById("caseWrap");
+  if(!body) return;
+
+  body.innerHTML = DEPS.map(function(d,i){
+    return '<tr data-i="'+i+'">'
+      +'<td class="el">'+d.el+'</td>'
+      +'<td class="num">'+d.prop+'</td>'
+      +'<td class="num">'+d.req+'</td>'
+      +'<td><span class="pill'+(d.key?' rez':'')+'">'+d.mech+'</span></td>'
+      +'<td class="src">'+d.src+'</td>'
+      +'<td><span class="act '+d.act+'">'+d.actLab+'</span></td>'
+      +'</tr>';
+  }).join("");
+
+  function paint(i){
+    var d=DEPS[i];
+    var h='<div class="case-h"><b>Approval case</b><span>'+d.el+' \u00b7 '+d.prop+' vs '+d.req+'</span>'
+        + '<i'+(d.note?' class="flat"':'')+'>'+d.read+'</i></div>';
+    if(d.note){
+      h+='<div class="nocase">'+d.note+'</div>';
+    } else {
+      h+='<div class="case"><div><h5>Argument</h5>'
+        + d.ev.map(function(e){return '<div class="ev"><b'+(e[1]?' class="'+e[1]+'"':'')+'>'+e[0]+'</b><p>'+e[2]+'</p></div>';}).join("")
+        + '</div><div><h5>Comparable decisions</h5>'
+        + (d.comps.length
+            ? d.comps.map(function(c){return '<div class="ev"><b>'+c[0]+'</b><p>'+c[1]+'</p></div>';}).join("")
+            : '<div class="ev"><p>No comparable decision found. This departure rests on the regulation, not on precedent.</p></div>')
+        + '</div></div>';
+    }
+    wrap.innerHTML=h;
+    body.querySelectorAll("tr").forEach(function(r){ r.classList.toggle("sel", +r.dataset.i===i); });
+  }
+
+  body.querySelectorAll("tr").forEach(function(r){
+    r.addEventListener("click", function(){ paint(+r.dataset.i); });
+  });
+  paint(0);
+})();
+
+/* ---------------- market map ---------------- */
+var PHASES=[
+  ['01','Find the site'],['02','Test the deal'],['03','Shape the project'],
+  ['04','Win municipal approvals'],['05','Get build-ready'],['06','Build and complete'],['07','Exit or operate']
+];
+var PROVEN=[
+  ['LandTech','Land discovery',1,2],
+  ['Zoneomics','Zoning controls',2,3],
+  ['Gridics','By-right capacity',2,3],
+  ['TestFit','Conceptual layouts',2,3],
+  ['Archistar','Controls, generative design',2,4],
+  ['PermitFlow','Permit submission',5,5],
+  ['Northspyre','Budgets and delivery',2,6]
+];
+var UNPROVEN=[
+  ['Deventic','Zoning through permits',2,5],
+  ['Shovelready','Rezoning probability',2,5],
+  ['Rasmere','Planning-risk reports',2,4],
+  ['Cityscrape','Policy and decision monitoring',2,4],
+  ['PlotWize','Early planning risk',2,4],
+  ['CivroDA','Proposals vs. Council decisions',2,4],
+  ['ParcelScore AI','Acquisition reports',2,4]
+];
+
+(function drawMap(){
+  var el=document.getElementById('mapInner');
+  var h=['<div class="ph-row"><div></div>'];
+  PHASES.forEach(function(p,i){
+    h.push('<div class="ph'+(i===3?' key':'')+'"><u>'+p[0]+'</u><b>'+p[1]+'</b></div>');
+  });
+  h.push('</div>');
+
+  function row(n,d,s,e,cls,peak){
+    var bar='<div class="bar '+cls+(peak?' peak':'')+'" style="grid-column:'+s+' / '+(e+1)+'"></div>';
+    return '<div class="row'+(cls==='tb'?' tb-row':'')+'"><div class="row-lab"><b>'+n+'</b><span>'+d+'</span></div><div class="track">'+bar+'</div></div>';
+  }
+
+  h.push(row('Tribunus','What can credibly be pushed',2,4,'tb',true));
+
+  h.push('<div class="grp-lab"><b>Proven</b><span>Selling adjacent parts of the workflow</span></div>');
+  PROVEN.forEach(function(c){ h.push(row(c[0],c[1],c[2],c[3],'')); });
+
+  h.push('<div class="grp-lab"><b>Unproven</b><span>Claiming the same space · early or unverified</span></div>');
+  UNPROVEN.forEach(function(c){ h.push(row(c[0],c[1],c[2],c[3],'un')); });
+
+  h.push('<div class="legend">'
+    +'<div><i class="li-t"></i>Tribunus</div>'
+    +'<div><i class="li-p"></i>Proven</div>'
+    +'<div><i class="li-u"></i>Unproven</div></div>');
+
+  el.innerHTML=h.join('');
+})();
+</script>
+</body>
+</html>
